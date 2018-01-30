@@ -1,0 +1,472 @@
+/**
+ * ofxTimeline
+ * openFrameworks graphical timeline addon
+ *
+ * Copyright (c) 2011-2012 James George
+ * Development Supported by YCAM InterLab http://interlab.ycam.jp/en/
+ * http://jamesgeorge.org + http://flightphase.com
+ * http://github.com/obviousjim + http://github.com/flightphase
+ *
+ * Permission is hereby granted, free of charge, to any person
+ * obtaining a copy of this software and associated documentation
+ * files (the "Software"), to deal in the Software without
+ * restriction, including without limitation the rights to use,
+ * copy, modify, merge, publish, distribute, sublicense, and/or sell
+ * copies of the Software, and to permit persons to whom the
+ * Software is furnished to do so, subject to the following
+ * conditions:
+ *
+ * The above copyright notice and this permission notice shall be
+ * included in all copies or substantial portions of the Software.
+ *
+ * THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND,
+ * EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES
+ * OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+ * NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT
+ * HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,
+ * WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+ * FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR
+ * OTHER DEALINGS IN THE SOFTWARE.
+ *
+ */
+
+#include "ofxTLVMMControl.h"
+#include "ofxTimeline.h"
+
+
+ofxTLVMMControl::ofxTLVMMControl(){
+
+    rows = 3;
+    cols = 4;
+    oscTarget = "localhost";
+    oscPort = 12345;
+    type = OFXTLVMMCONTROL_TYPE_BUTTONS;
+    setupTrack();
+
+}
+
+ofxTLVMMControl::ofxTLVMMControl(string _oscTarget, int _oscPort = 12345){
+    
+    //osc data
+    oscTarget = _oscTarget;
+    oscPort = _oscPort;
+    
+    test_still = false;
+    test_noteOnAndPlay = 0;
+    test_localCopies = 0.0;
+    
+    //create the gui
+    setupTrack();
+    
+}
+
+ofxTLVMMControl::ofxTLVMMControl(int _rows, int _cols, string _oscTarget = "localhost", int _oscPort = 12345, ofxTLVMMControlType _type=OFXTLVMMCONTROL_TYPE_BUTTONS){
+
+    rows = _rows;
+    cols = _cols;
+    oscTarget = _oscTarget;
+    oscPort = _oscPort;
+    type = _type;
+    setupTrack();
+
+}
+
+ofxTLVMMControl::ofxTLVMMControl(int _b_rows, int _b_cols, int _s_rows, int _s_cols, string _oscTarget = "localhost", int _oscPort = 12345, ofxTLVMMControlType _type=OFXTLVMMCONTROL_TYPE_MIXED){
+
+    button_rows = _b_rows;
+    button_cols = _b_cols;
+    slider_rows = _s_rows;
+    slider_cols = _s_cols;
+    oscTarget = _oscTarget;
+    oscPort = _oscPort;
+    type = _type;
+    setupTrack();
+
+}
+
+ofxTLVMMControl::~ofxTLVMMControl(){
+    
+    delete gui;
+    
+    delete tgl_still;
+    delete but_noteOnAndPlay;
+    delete slider_localCopies;
+    
+}
+
+
+//ofxDatGui
+//================================================================================
+void ofxTLVMMControl::setupTrack(){
+    
+    // OSC setup
+    sender.setup(oscTarget, oscPort);
+    
+    //datGui combined panel
+    gui = new ofxDatGui( 200, 200 );
+    gui->setAutoDraw(false);
+   
+    gui->addHeader("   ::PORT "+ofToString(oscPort)+"::   ", false);
+    gui->addToggle("still", false);
+    gui->addButton("noteOnAndPlay");
+    gui->addSlider("localCopies", 0, 12, 0);
+    gui->setWidth(100);
+    
+    //add event listeners
+    gui->onButtonEvent(this, &ofxTLVMMControl::trackGuiEvent);
+    gui->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    //individual elements
+    tgl_still = new ofxDatGuiToggle("still",false);
+    tgl_still->setWidth(100.0);
+    tgl_still->setPosition(300.0, 0.0);
+    tgl_still->setLabelMargin(10.0);
+    tgl_still->setLabelAlignment(ofxDatGuiAlignment::LEFT);
+    tgl_still->onButtonEvent(this, &ofxTLVMMControl::trackGuiEvent);
+    
+    but_noteOnAndPlay = new ofxDatGuiButton("noteOnAndPlay");
+    but_noteOnAndPlay->setWidth(100.0);
+    but_noteOnAndPlay->setPosition(300.0, tgl_still->getHeight());
+    but_noteOnAndPlay->setLabelMargin(10.0);
+    but_noteOnAndPlay->setLabelAlignment(ofxDatGuiAlignment::LEFT);
+    but_noteOnAndPlay->onButtonEvent(this, &ofxTLVMMControl::trackGuiEvent);
+    
+    slider_localCopies = new ofxDatGuiSlider("localCopies", 0, 12, 0);
+    slider_localCopies->setWidth(200.0, 100.0);
+    slider_localCopies->setPosition(300.0, 0.0);
+    slider_localCopies->setLabelMargin(10.0);
+    slider_localCopies->setLabelAlignment(ofxDatGuiAlignment::LEFT);
+    slider_localCopies->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+}
+
+void ofxTLVMMControl::trackGuiEvent(ofxDatGuiButtonEvent e){
+    
+    if(e.target->is("still")){
+        string labelString = e.target->getName();
+        bool tglEnabled = e.target->getEnabled();
+        test_still = tglEnabled;
+        string isEnabled = tglEnabled ? "true" : "false";
+        sendOscMessage(labelString, test_still);
+    } else if (e.target->is("noteOnAndPlay")){
+        
+        string labelString = e.target->getName();
+        sendOscNoteOnAndPlay(labelString);
+    }
+}
+
+void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
+    
+    if(e.target->is("localCopies")){
+        
+        test_localCopies = e.target->getValue();
+        
+        string labelString = e.target->getName();
+        float value = e.target->getValue();
+                
+        sendOscLocalCopies(labelString, value);
+
+    }
+}
+
+void ofxTLVMMControl::sendOscMessage(string _message){
+
+        string message = _message;
+        ofxOscMessage m;
+        m.setAddress(message);
+        sender.sendMessage(m);
+}
+
+void ofxTLVMMControl::sendOscMessage(string _message, float _value){
+
+        string message = _message;
+        float argument = _value;
+        ofxOscMessage m;
+        m.setAddress(message);
+        m.addFloatArg(argument);
+        sender.sendMessage(m);
+    
+    cout << "/" << _message << " " << ofToString(_value) << endl;
+}
+
+void ofxTLVMMControl::sendOscMessage(string _message, string _value){
+    
+    string message = _message;
+    string argument = _value;
+    ofxOscMessage m;
+    m.setAddress(message);
+    m.addStringArg(argument);
+    sender.sendMessage(m);
+}
+
+void ofxTLVMMControl::sendOscNoteOnAndPlay(string _message){
+    
+    string message = "/" + _message;
+    
+    ofxOscMessage m;
+    m.setAddress(message);
+    m.addIntArg(1);
+    m.addIntArg(500);
+    m.addIntArg(1);
+    m.addIntArg(200);
+
+    sender.sendMessage(m);
+    
+    cout << message << " " << ofToString(1) << " " << ofToString(m.getArgAsInt32(1)) << " " << ofToString(m.getArgAsInt32(2)) << " " << ofToString(m.getArgAsInt32(3))  << endl;
+}
+
+void ofxTLVMMControl::sendOscLocalCopies(string _message,float _value){
+    
+    string message = "/" + _message;
+    int value = (int)floor(_value);
+    ofxOscMessage m;
+    m.setAddress(message);
+    m.addIntArg(1);
+    m.addIntArg(value);
+    sender.sendMessage(m);
+    
+    cout << message << " " << ofToString(1) << " " << ofToString(value) << endl;
+}
+
+//enable and disable are always automatically called
+//in setup. Must call superclass's method as well as doing your own
+//enabling and disabling
+void ofxTLVMMControl::enable(){
+	ofxTLTrack::enable();
+    
+    gui->setEnabled(true);
+    
+	//other enabling
+}
+
+void ofxTLVMMControl::disable(){
+	ofxTLTrack::disable();
+
+    gui->setEnabled(false);
+	//other disabling
+}
+
+void ofxTLVMMControl::trackGuiDelete(){
+//    trackGui->disable();
+//    ofRemoveListener(trackGui->newGUIEvent, this, &ofxTLVMMControl::trackGuiEvent);
+    
+    gui->setEnabled(false);
+//  DO I NEED TO REMOVE THE LISTENER?
+}
+
+//update is called every frame.
+//if your track triggers events it's good to do it here
+//if timeline is set to thread this is called on the back thread so
+//be careful if loading images in herre
+void ofxTLVMMControl::update(){
+    
+    //    //get the bounds of the track.  used to show or hide the GUI.
+    //    cout << "gui height: " << gui->getHeight() <<
+    //    " track minY: " << bounds.getMinY() <<
+    //    " track maxY: " << bounds.getMaxY() <<
+    //    " getBottom - getTop = " << bounds.getBottom()-bounds.getTop() <<
+    //    endl;
+    
+    //gui
+    gui->update();
+    gui->setPosition(bounds.getX(), bounds.getMinY());
+    if(bounds.getBottom()-bounds.getTop() < gui->getHeight()){
+        
+        gui->setVisible(false);
+    } else {
+        
+        gui->setVisible(true);
+    }
+    
+    //individual buttons
+    tgl_still->setPosition(bounds.getX()+400, bounds.getY());
+    tgl_still->update();
+    
+    if(bounds.getBottom()-bounds.getTop() < tgl_still->getHeight()){
+        tgl_still->setVisible(false);
+    } else {
+        tgl_still->setVisible(true);
+    }
+    
+    but_noteOnAndPlay->setPosition(bounds.getX()+400, bounds.getY()+tgl_still->getHeight());
+    but_noteOnAndPlay->update();
+    
+    if(bounds.getBottom()-bounds.getTop() < tgl_still->getHeight()+but_noteOnAndPlay->getHeight()){
+        but_noteOnAndPlay->setVisible(false);
+    } else {
+        but_noteOnAndPlay->setVisible(true);
+    }
+    
+    slider_localCopies->setPosition(bounds.getX()+400, bounds.getY()+tgl_still->getHeight()+but_noteOnAndPlay->getHeight());
+    slider_localCopies->update();
+
+    if(bounds.getBottom()-bounds.getTop() < tgl_still->getHeight()+but_noteOnAndPlay->getHeight()+slider_localCopies->getHeight()){
+        slider_localCopies->setVisible(false);
+    } else {
+        slider_localCopies->setVisible(true);
+    }
+    
+}
+
+//draw your track contents. use ofRectangle bounds to know where to draw
+//and the Track functions screenXToMillis() or millisToScreenX() to respect zoom
+void ofxTLVMMControl::draw(){
+    
+    //gui
+    gui->draw();
+    
+    if(bounds.getBottom()-bounds.getTop() < gui->getHeight()){
+        ofPushStyle();
+        ofFill();
+        ofSetColor(100);
+        ofDrawRectangle(bounds.getX(), bounds.getMinY(), gui->getWidth(), bounds.getBottom()-bounds.getTop());
+        ofPopStyle();
+    }
+    
+    
+    //individual
+    tgl_still->draw();
+    but_noteOnAndPlay->draw();
+    slider_localCopies->draw();
+    
+	//this is just a simple example
+	/*
+	ofPushStyle();
+	ofFill();
+	if(isHovering()){
+		ofSetColor(timeline->getColors().backgroundColor);
+		ofRect(bounds);
+	}
+
+	ofNoFill();
+	ofSetColor(timeline->getColors().keyColor);
+	for(int i = 0; i < clickPoints.size(); i++){
+		float screenX = millisToScreenX(clickPoints[i].time);
+		if(screenX > bounds.x && screenX < bounds.x+bounds.width){
+			float screenY = ofMap(clickPoints[i].value, 0.0, 1.0, bounds.getMinY(), bounds.getMaxY());
+			ofCircle(screenX, screenY, 4);
+		}
+	}
+	*/
+}
+
+//caled by the timeline, don't need to register events
+bool ofxTLVMMControl::mousePressed(ofMouseEventArgs& args, long millis){
+	/*
+	createNewPoint = isActive();
+	clickPoint = ofVec2f(args.x,args.y);
+	return createNewPoint; //signals that the click made a selection
+	*/
+}
+
+void ofxTLVMMControl::mouseMoved(ofMouseEventArgs& args, long millis){
+
+}
+void ofxTLVMMControl::mouseDragged(ofMouseEventArgs& args, long millis){
+
+}
+void ofxTLVMMControl::mouseReleased(ofMouseEventArgs& args, long millis){
+
+	/*
+	//need to create clicks on mouse up if the mouse hasn't moved in order to work
+	//well with the click-drag rectangle thing
+	if(createNewPoint && clickPoint.distance(ofVec2f(args.x, args.y)) < 4){
+		ClickPoint newpoint;
+		newpoint.value = ofMap(args.y, bounds.getMinY(), bounds.getMaxY(), 0, 1.0);
+		newpoint.time = millis;
+		clickPoints.push_back(newpoint);
+		//call this on mouseup or keypressed after a click
+		//will trigger save and needed for undo
+		timeline->flagTrackModified(this);
+	}
+	*/
+}
+
+//keys pressed events, and nuding from arrow keys with normalized nudge amount 0 - 1.0
+void ofxTLVMMControl::keyPressed(ofKeyEventArgs& args){
+
+}
+void ofxTLVMMControl::nudgeBy(ofVec2f nudgePercent){
+
+}
+
+//if your track has some selectable elements you can interface with snapping
+//and selection/unselection here
+void ofxTLVMMControl::getSnappingPoints(set<unsigned long>& points){
+
+}
+void ofxTLVMMControl::regionSelected(ofLongRange timeRange, ofRange valueRange){
+
+}
+void ofxTLVMMControl::unselectAll(){
+
+}
+void ofxTLVMMControl::selectAll(){
+
+}
+
+//return a unique name for your track
+string ofxTLVMMControl::getTrackType(){
+	return "Buttons";
+}
+
+//for copy+paste you can optionaly implement ways
+//of creating XML strings that represent your selected tracks
+string ofxTLVMMControl::copyRequest(){
+	return "";
+}
+
+string ofxTLVMMControl::cutRequest(){
+	return "";
+}
+
+//will return the same type of strings you provide in copy and paste
+//but may contain foreign data from other tracks so be careful
+void ofxTLVMMControl::pasteSent(string pasteboard){
+
+}
+
+//for undo and redo you can implement a way of
+//reperesnt your whole track as XML
+string ofxTLVMMControl::getXMLRepresentation(){
+	return "";
+}
+
+void ofxTLVMMControl::loadFromXMLRepresentation(string rep){
+
+}
+
+//serialize your track.
+//use ofxTLTrack's string xmlFileName
+void ofxTLVMMControl::save(){
+    cout << "ofxTLVMMControl::save()" << endl;
+    
+    //string xmlRep = getXMLStringForKeyframes(keyframes);
+    ofxXmlSettings savedButtonsTrack;
+    
+    //write all the VMM settings.
+    savedButtonsTrack.addTag("VMM");
+    savedButtonsTrack.pushTag("VMM");
+    savedButtonsTrack.addValue("still", test_still);
+    savedButtonsTrack.addValue("noteOnAndPlay", test_noteOnAndPlay);
+    savedButtonsTrack.addValue("localCopies", test_localCopies);
+    savedButtonsTrack.popTag();
+    
+    //cout where and what to save.
+    string outstring;
+    savedButtonsTrack.copyXmlToString(outstring);
+    cout << outstring << endl;
+    cout << "XMLFilePath: " << getXMLFilePath() << endl;
+    cout << "XMLFileName: " << getXMLFileName() << endl;
+    
+    savedButtonsTrack.saveFile(xmlFileName);
+    
+}
+
+void ofxTLVMMControl::load(){
+
+}
+
+void ofxTLVMMControl::clear(){
+
+}
