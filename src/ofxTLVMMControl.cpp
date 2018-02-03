@@ -33,7 +33,12 @@
 #include "ofxTLVMMControl.h"
 #include "ofxTimeline.h"
 
+// setup the events to pass back
+ofEvent <OscMsgEvent> OscMsgEvent::events;
+ofEvent <anotherOscMsgEvent> anotherOscMsgEvent::events;
+ofEvent <VMMOscMessageEvent> VMMOscMessageEvent::events;
 
+//TODO: make single constructor without variables.
 ofxTLVMMControl::ofxTLVMMControl(){
 
     rows = 3;
@@ -53,7 +58,7 @@ ofxTLVMMControl::ofxTLVMMControl(string _oscTarget, int _oscPort = 12345){
     
     test_still = false;
     test_noteOnAndPlay = 0;
-    test_localCopies = 0.0;
+    test_localCopies = 5.0;
     
     //create the gui
     setupTrack();
@@ -99,6 +104,7 @@ ofxTLVMMControl::~ofxTLVMMControl(){
 //================================================================================
 void ofxTLVMMControl::setupTrack(){
     
+    //TODO: REMOVE
     // OSC setup
     sender.setup(oscTarget, oscPort);
     
@@ -138,8 +144,11 @@ void ofxTLVMMControl::setupTrack(){
     slider_localCopies->setLabelAlignment(ofxDatGuiAlignment::LEFT);
     slider_localCopies->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
+    
+    //TODO: CREATE GUI USING COMPONENTS VECTOR ALA SONOSCOPIA
 }
 
+//BUTTON AND TOGGLE EVENTS
 void ofxTLVMMControl::trackGuiEvent(ofxDatGuiButtonEvent e){
     
     if(e.target->is("still")){
@@ -155,20 +164,82 @@ void ofxTLVMMControl::trackGuiEvent(ofxDatGuiButtonEvent e){
     }
 }
 
+//SLIDER EVENTS
 void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
     
     if(e.target->is("localCopies")){
         
+        //set the local var.
         test_localCopies = e.target->getValue();
         
+        //get the slidername and value
         string labelString = e.target->getName();
         float value = e.target->getValue();
-                
-        sendOscLocalCopies(labelString, value);
+        
+        //ofxTLVMMControl::sendOscLocalCopies()
+        //sendOscLocalCopies(labelString, value);
 
+        //TESTS -  EVENT TESTS (NOT BEING USED)
+        //1. class OscMsgEvent
+        static OscMsgEvent newEvent;
+        newEvent.msg = "My Custom Message Event!";
+        ofNotifyEvent(OscMsgEvent::events, newEvent);
+        
+        //2. ofMessage > ofApp::gotMessage(ofMessage msg);
+        ofMessage testMsg("ofMessage Message Event!");
+        ofSendMessage(testMsg);
+        
+        //3. class anotherOscMsgEvent
+        static anotherOscMsgEvent testMsg2;
+        testMsg2.setArgs(100,222);
+        ofNotifyEvent(anotherOscMsgEvent::events, testMsg2);
+        
+        //4. class VMMOscMessageEvent
+        static VMMOscMessageEvent vmmOscEvent;
+        vmmOscEvent.composeOscMsg(labelString, test_localCopies);
+        ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
+        
     }
 }
 
+
+void ofxTLVMMControl::setGuiSliderValue(string param, float value){
+    if(param == "localCopies"){
+        //set the public var
+        test_localCopies = value;
+        
+        //update the gui
+        updateGuiSlider(param, value);
+        
+        //send out the osc
+        //TODO: route this up to &ofAPP::ofAppRouter
+        sendOscLocalCopies(param, value);
+        
+    }
+}
+
+void ofxTLVMMControl::setGuiValue(string param, int value){
+    
+}
+void ofxTLVMMControl::setGuiValue(string param, bool value){
+    
+}
+
+void ofxTLVMMControl::updateGuiToggle(string name, bool value){
+    
+}
+void ofxTLVMMControl::updateGuiSlider(string name, float value){
+    if(name == "localCopies"){
+        gui->getSlider(name)->setValue(value);
+    }
+}
+void ofxTLVMMControl::updateGuiSlider(string name, int value){
+    
+}
+
+
+//TODO: remove all send osc function.
+//moved to ofApp.
 void ofxTLVMMControl::sendOscMessage(string _message){
 
         string message = _message;
@@ -267,12 +338,19 @@ void ofxTLVMMControl::update(){
     //    " getBottom - getTop = " << bounds.getBottom()-bounds.getTop() <<
     //    endl;
     
+    
+    
+    //ALL THIS BELOW SETS THE VISIBILITY OF THE GUI ELEMENTS WHEN YOU MINIMIZE THE TRACK
+    //TODO: SET THIS UP TO WORK ON UNNAMED COMPONENTS (ALA SONSCOPIA)
+    //TODO: HIDE(OR PREVENT TRIGGERING) THE GUI ELEMENTS WHEN TRACK IS NOT FOCUSED.
+    
     //gui
     gui->update();
     gui->setPosition(bounds.getX(), bounds.getMinY());
     if(bounds.getBottom()-bounds.getTop() < gui->getHeight()){
         
         gui->setVisible(false);
+        
     } else {
         
         gui->setVisible(true);
@@ -284,6 +362,7 @@ void ofxTLVMMControl::update(){
     
     if(bounds.getBottom()-bounds.getTop() < tgl_still->getHeight()){
         tgl_still->setVisible(false);
+        
     } else {
         tgl_still->setVisible(true);
     }
@@ -315,6 +394,8 @@ void ofxTLVMMControl::draw(){
     //gui
     gui->draw();
     
+    //TODO: unneeded
+    //draw a rect if the track is too short to display gui
     if(bounds.getBottom()-bounds.getTop() < gui->getHeight()){
         ofPushStyle();
         ofFill();
@@ -324,18 +405,20 @@ void ofxTLVMMControl::draw(){
     }
     
     
-    //individual
+    //draw individual Gui components.
     tgl_still->draw();
     but_noteOnAndPlay->draw();
     slider_localCopies->draw();
     
-	//this is just a simple example
+	//this is just a simple example (not working for me)
 	/*
 	ofPushStyle();
 	ofFill();
 	if(isHovering()){
-		ofSetColor(timeline->getColors().backgroundColor);
-		ofRect(bounds);
+		//ofSetColor(timeline->getColors().backgroundColor);
+        ofSetColor(ofColor::indianRed);
+        ofRectangle(bounds);
+
 	}
 
 	ofNoFill();
@@ -344,10 +427,11 @@ void ofxTLVMMControl::draw(){
 		float screenX = millisToScreenX(clickPoints[i].time);
 		if(screenX > bounds.x && screenX < bounds.x+bounds.width){
 			float screenY = ofMap(clickPoints[i].value, 0.0, 1.0, bounds.getMinY(), bounds.getMaxY());
-			ofCircle(screenX, screenY, 4);
+            ofDrawCircle(screenX, screenY, 4);
 		}
 	}
-	*/
+    ofPopStyle();
+    */
 }
 
 //caled by the timeline, don't need to register events
@@ -464,7 +548,21 @@ void ofxTLVMMControl::save(){
 }
 
 void ofxTLVMMControl::load(){
-
+    
+    string savedClipSettingsPath = getXMLFilePath();
+    ofxXmlSettings savedVMMSettings;
+    
+    if( savedVMMSettings.loadFile(savedClipSettingsPath) ){
+        ofLogVerbose("LOAD") << "ofxTLVMMControl::load() - Loading VMM.xml " << savedClipSettingsPath;
+        
+        //update the params
+        //TODO: ceate a function with all the setting to set from xml.
+        setGuiSliderValue("localCopies",savedVMMSettings.getValue("VMM:localCopies", 0));
+                
+    }else{
+        ofLogError("LOAD") <<  "ofxTLVMMControl::load() - unable to load: " << savedClipSettingsPath ;
+        return;
+    }
 }
 
 void ofxTLVMMControl::clear(){

@@ -49,6 +49,51 @@ typedef struct {
 	unsigned long time;
 } ClickPoint;
 
+class OscMsgEvent : public ofEventArgs {
+public:
+    string msg;
+    
+    OscMsgEvent() {
+        
+    }
+    
+    static ofEvent <OscMsgEvent> events;
+};
+
+class anotherOscMsgEvent : public ofEventArgs {
+    public:
+
+    int arg1;
+    int arg2;
+    
+    void setArgs(int _one, int _two ){
+        arg1 = _one;
+        arg2 = _two;
+    }
+    
+    static ofEvent <anotherOscMsgEvent> events;
+};
+
+//CREATES A PREPACKAGED OSC MSG EVENT.
+class VMMOscMessageEvent : public ofEventArgs{
+public:
+    ofxOscMessage m;
+    string message;
+    int value;
+  
+    void composeOscMsg(string msg, float val){
+        message = "/" + msg;
+        value = (int)floor(val);
+        
+        m.clear();
+        m.setAddress(message);
+        m.addIntArg(1);
+        m.addIntArg(value);
+    }
+    
+    static ofEvent <VMMOscMessageEvent> events;
+};
+
 class ofxTLVMMControl : public ofxTLTrack {
   public:
     ofxTLVMMControl();
@@ -59,6 +104,7 @@ class ofxTLVMMControl : public ofxTLTrack {
 
 	ofxTLVMMControlType type;
 
+    //TODO: remove this stuff
 	//number of buttons
 	int rows;
 	int cols;
@@ -67,12 +113,6 @@ class ofxTLVMMControl : public ofxTLTrack {
 	int slider_rows;
 	int slider_cols;
     
-    //test params for VMM
-    bool test_still;
-    int test_noteOnAndPlay;
-    float test_localCopies;
-    
-
 	// OSC stuff
 	string oscTarget;
 	int oscPort;
@@ -84,6 +124,11 @@ class ofxTLVMMControl : public ofxTLTrack {
     void sendOscNoteOnAndPlay(string _message);
     void sendOscLocalCopies(string _message, float _value);
 
+    //test params for VMM
+    bool test_still;
+    int test_noteOnAndPlay;
+    float test_localCopies;
+    
     // ofxDatGui
     void setupTrack();
     ofxDatGui* gui;
@@ -95,9 +140,16 @@ class ofxTLVMMControl : public ofxTLTrack {
     void trackGuiEvent(ofxDatGuiButtonEvent e);
     void trackGuiSliderEvent(ofxDatGuiSliderEvent e);
     
+    void setGuiSliderValue(string param, float value);
+    void setGuiValue(string param, int value);
+    void setGuiValue(string param, bool value);
+    
+    void updateGuiToggle(string name, bool value);
+    void updateGuiSlider(string name, float value);
+    void updateGuiSlider(string name, int value);
+    
     void trackGuiDelete();
 
-    
 	//enable and disable are always automatically called
 	//in setup. Must call superclass's method as well as doing your own
 	//enabling and disabling
