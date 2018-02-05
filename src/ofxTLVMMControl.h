@@ -38,17 +38,20 @@
 #include "ofxOsc.h"
 #include "ofxDatGui.h"
 
+/*
 enum ofxTLVMMControlType {
 	OFXTLVMMCONTROL_TYPE_BUTTONS=0,
 	OFXTLVMMCONTROL_TYPE_SLIDERS=1,
 	OFXTLVMMCONTROL_TYPE_MIXED=2
 };
-
+*/
+ 
 typedef struct {
 	float value;
 	unsigned long time;
 } ClickPoint;
 
+/*
 class OscMsgEvent : public ofEventArgs {
 public:
     string msg;
@@ -73,7 +76,9 @@ class anotherOscMsgEvent : public ofEventArgs {
     
     static ofEvent <anotherOscMsgEvent> events;
 };
-
+*/
+ 
+ 
 //CREATES A PREPACKAGED OSC MSG EVENT.
 class VMMOscMessageEvent : public ofEventArgs{
 public:
@@ -81,13 +86,14 @@ public:
     string message;
     int value;
   
-    void composeOscMsg(string msg, float val){
+    void composeOscMsg(int track, string msg, float val){
         message = "/" + msg;
         value = (int)floor(val);
         
+        
         m.clear();
         m.setAddress(message);
-        m.addIntArg(1);
+        m.addIntArg(track);
         m.addIntArg(value);
     }
     
@@ -97,23 +103,31 @@ public:
 class ofxTLVMMControl : public ofxTLTrack {
   public:
     ofxTLVMMControl();
+    
+    /*
     ofxTLVMMControl(string _oscTarget, int _oscPort);
 	ofxTLVMMControl(int _rows, int _cols, string _oscTarget, int _oscPort, ofxTLVMMControlType _type);
 	ofxTLVMMControl(int _b_rows, int _b_cols, int _s_rows, int _s_cols, string _oscTarget, int _oscPort, ofxTLVMMControlType _type);
+    */
+    
+    
 	virtual ~ofxTLVMMControl();
 
-	ofxTLVMMControlType type;
+	//ofxTLVMMControlType type;
 
     //TODO: remove this stuff
 	//number of buttons
+    /*
 	int rows;
 	int cols;
 	int button_rows;
 	int button_cols;
 	int slider_rows;
 	int slider_cols;
+    */
     
 	// OSC stuff
+    /*
 	string oscTarget;
 	int oscPort;
 	ofxOscSender sender;
@@ -121,9 +135,13 @@ class ofxTLVMMControl : public ofxTLTrack {
 	void sendOscMessage(string _message, float _value);
     void sendOscMessage(string _message, string _value);
     
+    
     void sendOscNoteOnAndPlay(string _message);
     void sendOscLocalCopies(string _message, float _value);
-
+    */
+    
+    int track;
+    
     //test params for VMM
     bool test_still;
     int test_noteOnAndPlay;

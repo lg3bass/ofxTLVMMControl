@@ -34,22 +34,26 @@
 #include "ofxTimeline.h"
 
 // setup the events to pass back
-ofEvent <OscMsgEvent> OscMsgEvent::events;
-ofEvent <anotherOscMsgEvent> anotherOscMsgEvent::events;
+//ofEvent <OscMsgEvent> OscMsgEvent::events;
+//ofEvent <anotherOscMsgEvent> anotherOscMsgEvent::events;
 ofEvent <VMMOscMessageEvent> VMMOscMessageEvent::events;
 
 //TODO: make single constructor without variables.
 ofxTLVMMControl::ofxTLVMMControl(){
-
-    rows = 3;
-    cols = 4;
-    oscTarget = "localhost";
-    oscPort = 12345;
-    type = OFXTLVMMCONTROL_TYPE_BUTTONS;
+    
+    //test variables
+    test_still = false;
+    test_noteOnAndPlay = 0;
+    test_localCopies = 5.0;
+    
+    //VMM variables.
+    
+    
     setupTrack();
 
 }
 
+/*
 ofxTLVMMControl::ofxTLVMMControl(string _oscTarget, int _oscPort = 12345){
     
     //osc data
@@ -89,9 +93,13 @@ ofxTLVMMControl::ofxTLVMMControl(int _b_rows, int _b_cols, int _s_rows, int _s_c
 
 }
 
+*/
+ 
+ 
 ofxTLVMMControl::~ofxTLVMMControl(){
     
     delete gui;
+    
     
     delete tgl_still;
     delete but_noteOnAndPlay;
@@ -106,13 +114,13 @@ void ofxTLVMMControl::setupTrack(){
     
     //TODO: REMOVE
     // OSC setup
-    sender.setup(oscTarget, oscPort);
+    //sender.setup(oscTarget, oscPort);
     
     //datGui combined panel
     gui = new ofxDatGui( 200, 200 );
     gui->setAutoDraw(false);
    
-    gui->addHeader("   ::PORT "+ofToString(oscPort)+"::   ", false);
+    gui->addHeader("   ::GUI::   ", false);
     gui->addToggle("still", false);
     gui->addButton("noteOnAndPlay");
     gui->addSlider("localCopies", 0, 12, 0);
@@ -156,11 +164,13 @@ void ofxTLVMMControl::trackGuiEvent(ofxDatGuiButtonEvent e){
         bool tglEnabled = e.target->getEnabled();
         test_still = tglEnabled;
         string isEnabled = tglEnabled ? "true" : "false";
-        sendOscMessage(labelString, test_still);
+        //sendOscMessage(labelString, test_still);
+        //TODO: send osc via event
     } else if (e.target->is("noteOnAndPlay")){
         
         string labelString = e.target->getName();
-        sendOscNoteOnAndPlay(labelString);
+        //sendOscNoteOnAndPlay(labelString);
+        //TODO: send osc via event
     }
 }
 
@@ -181,22 +191,30 @@ void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
 
         //TESTS -  EVENT TESTS (NOT BEING USED)
         //1. class OscMsgEvent
+        /*
         static OscMsgEvent newEvent;
         newEvent.msg = "My Custom Message Event!";
         ofNotifyEvent(OscMsgEvent::events, newEvent);
+        */
         
         //2. ofMessage > ofApp::gotMessage(ofMessage msg);
+        /*
         ofMessage testMsg("ofMessage Message Event!");
         ofSendMessage(testMsg);
+        */
         
         //3. class anotherOscMsgEvent
+        /*
         static anotherOscMsgEvent testMsg2;
         testMsg2.setArgs(100,222);
         ofNotifyEvent(anotherOscMsgEvent::events, testMsg2);
+        */
         
+        //cout << "ofxTLVMMControl::trackGuiSliderEvent > track: " << track << endl;
+         
         //4. class VMMOscMessageEvent
         static VMMOscMessageEvent vmmOscEvent;
-        vmmOscEvent.composeOscMsg(labelString, test_localCopies);
+        vmmOscEvent.composeOscMsg(track+1, labelString, test_localCopies);
         ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
         
     }
@@ -211,10 +229,13 @@ void ofxTLVMMControl::setGuiSliderValue(string param, float value){
         //update the gui
         updateGuiSlider(param, value);
         
-        //send out the osc
-        //TODO: route this up to &ofAPP::ofAppRouter
-        sendOscLocalCopies(param, value);
+        //cout << "ofxTLVMMControl::setGuiSliderValue > track: " << track << endl;
         
+        //send out the osc
+        static VMMOscMessageEvent vmmOscEvent;
+        vmmOscEvent.composeOscMsg(track+1, param, value);
+        ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
+    
     }
 }
 
@@ -240,6 +261,7 @@ void ofxTLVMMControl::updateGuiSlider(string name, int value){
 
 //TODO: remove all send osc function.
 //moved to ofApp.
+/*
 void ofxTLVMMControl::sendOscMessage(string _message){
 
         string message = _message;
@@ -298,7 +320,9 @@ void ofxTLVMMControl::sendOscLocalCopies(string _message,float _value){
     
     cout << message << " " << ofToString(1) << " " << ofToString(value) << endl;
 }
-
+*/
+ 
+ 
 //enable and disable are always automatically called
 //in setup. Must call superclass's method as well as doing your own
 //enabling and disabling
