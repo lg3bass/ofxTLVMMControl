@@ -51,34 +51,7 @@ typedef struct {
 	unsigned long time;
 } ClickPoint;
 
-/*
-class OscMsgEvent : public ofEventArgs {
-public:
-    string msg;
-    
-    OscMsgEvent() {
-        
-    }
-    
-    static ofEvent <OscMsgEvent> events;
-};
 
-class anotherOscMsgEvent : public ofEventArgs {
-    public:
-
-    int arg1;
-    int arg2;
-    
-    void setArgs(int _one, int _two ){
-        arg1 = _one;
-        arg2 = _two;
-    }
-    
-    static ofEvent <anotherOscMsgEvent> events;
-};
-*/
- 
- 
 //CREATES A PREPACKAGED OSC MSG EVENT.
 class VMMOscMessageEvent : public ofEventArgs{
 public:
@@ -90,7 +63,7 @@ public:
         message = "/" + msg;
         value = (int)floor(val);
         
-        
+        //compose an osc message
         m.clear();
         m.setAddress(message);
         m.addIntArg(track);
@@ -104,43 +77,49 @@ class ofxTLVMMControl : public ofxTLTrack {
   public:
     ofxTLVMMControl();
     
-    /*
-    ofxTLVMMControl(string _oscTarget, int _oscPort);
-	ofxTLVMMControl(int _rows, int _cols, string _oscTarget, int _oscPort, ofxTLVMMControlType _type);
-	ofxTLVMMControl(int _b_rows, int _b_cols, int _s_rows, int _s_cols, string _oscTarget, int _oscPort, ofxTLVMMControlType _type);
-    */
-    
-    
 	virtual ~ofxTLVMMControl();
 
-	//ofxTLVMMControlType type;
+    int track;  //store the current track
+    
+    ofParameter<int> OSCsetMatCap;
+    ofxDatGuiSlider* OSCsetMatCapSlider;
+    
+    ofParameter<int> OSCsetTrack;
+    ofxDatGuiSlider* OSCsetTrackSlider;
+        
+    ofParameter<int> localSlices;
+    ofxDatGuiSlider* localSlicesSlider;
+    
+    ofParameter<int> localCopies;
+    ofxDatGuiSlider* localCopiesSlider;
+    
+    ofParameter<int> globalCopies;
+    ofxDatGuiSlider* globalCopiesSlider;
+ 
+    ofParameter<float> mirrorDistance;
+    ofxDatGuiSlider* mirrorDistanceSlider;
+    
+    //playNoteOff
+    bool playNoteOff;
+    ofxDatGuiToggle* playNoteOffToggle;
+    
+    bool playAll;
+    ofxDatGuiToggle* playAllToggle;
+    
+    bool mirror;
+    ofxDatGuiToggle* mirrorToggle;
+    
+    bool mirrorX;
+    ofxDatGuiToggle* mirrorXToggle;
+    
+    bool mirrorY;
+    ofxDatGuiToggle* mirrorYToggle;
+    
+    bool mirrorZ;
+    ofxDatGuiToggle* mirrorZToggle;
 
-    //TODO: remove this stuff
-	//number of buttons
-    /*
-	int rows;
-	int cols;
-	int button_rows;
-	int button_cols;
-	int slider_rows;
-	int slider_cols;
-    */
+    int comp = 24;
     
-	// OSC stuff
-    /*
-	string oscTarget;
-	int oscPort;
-	ofxOscSender sender;
-	void sendOscMessage(string _message);
-	void sendOscMessage(string _message, float _value);
-    void sendOscMessage(string _message, string _value);
-    
-    
-    void sendOscNoteOnAndPlay(string _message);
-    void sendOscLocalCopies(string _message, float _value);
-    */
-    
-    int track;
     
     //test params for VMM
     bool test_still;
@@ -149,14 +128,19 @@ class ofxTLVMMControl : public ofxTLTrack {
     
     // ofxDatGui
     void setupTrack();
-    ofxDatGui* gui;
     
     ofxDatGuiToggle* tgl_still;
     ofxDatGuiButton* but_noteOnAndPlay;
     ofxDatGuiSlider* slider_localCopies;
     
     void trackGuiEvent(ofxDatGuiButtonEvent e);
+    
+    void trackGuiButtonEvent(ofxDatGuiButtonEvent e);
     void trackGuiSliderEvent(ofxDatGuiSliderEvent e);
+    
+    
+    void sendOSC(string name, float value);
+    
     
     void setGuiSliderValue(string param, float value);
     void setGuiValue(string param, int value);
