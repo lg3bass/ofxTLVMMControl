@@ -67,8 +67,6 @@ ofxTLVMMControl::ofxTLVMMControl(){
 }
 
 ofxTLVMMControl::~ofxTLVMMControl(){
-    
-    
 
     
     trackGuiDelete();
@@ -80,7 +78,7 @@ ofxTLVMMControl::~ofxTLVMMControl(){
 //================================================================================
 void ofxTLVMMControl::setupTrack(){
     
-    
+    //Col 1
     OSCsetMatCapSlider = new ofxDatGuiSlider(OSCsetMatCap);
     OSCsetMatCapSlider->setLabelMargin(10.0);
     OSCsetMatCapSlider->setWidth(200.0, 80.0);
@@ -111,9 +109,36 @@ void ofxTLVMMControl::setupTrack(){
     mirrorDistanceSlider->setWidth(200.0, 80.0);
     mirrorDistanceSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
+    //Col 2
+    playNoteOffToggle = new ofxDatGuiButton("playNoteOff");
+    playNoteOffToggle->setWidth(compW);
+    playNoteOffToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    //playNoteOffToggle->buttonEventCallback
+    
+    
+    
 }
 
+//--------------------------------------------------------------
+void ofxTLVMMControl::setButtonToggle(ofxDatGuiButton *_button, bool &val){
+    
+    val = !val;
+    
+    if(val){
+        _button->setBackgroundColor(ofColor(255,0,0));
+        cout << "drive on" << endl;
+    } else {
+        _button->setBackgroundColor(ofColor(0,0,0));
+        cout << "drive off" << endl;
+        
+    }
+    
+}
+
+
 //BUTTON AND TOGGLE EVENTS
+//TODO: delete me.
 void ofxTLVMMControl::trackGuiEvent(ofxDatGuiButtonEvent e){
     
     if(e.target->is("still")){
@@ -131,18 +156,31 @@ void ofxTLVMMControl::trackGuiEvent(ofxDatGuiButtonEvent e){
     }
 }
 
+//BUTTON EVENTS
 void ofxTLVMMControl::trackGuiButtonEvent(ofxDatGuiButtonEvent e){
-    
+    if(e.target->is("playNoteOff")){
+        
+        setButtonToggle(e.target, playNoteOff);
+        sendOSC("playNoteOff", playNoteOff);
+        
+        //bool tglStatus = e.target->getEnabled();
+        //playNoteOff = tglStatus;
+        
+        
+    } else if (e.target->is("playAll")){
+        
+        
+    }
     
     
 }
 
-
-
-
 //SLIDER EVENTS
 void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
+
+    sendOSC(e.target->getName(), e.target->getValue());
     
+    /*
     if(e.target->is("localCopies")){
         
         //set the local var.
@@ -158,10 +196,9 @@ void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
         ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
         
     } else {
-        
-        sendOSC(e.target->getName(), e.target->getValue());
-        
+
     }
+    */
 }
 
 
@@ -169,26 +206,6 @@ void ofxTLVMMControl::sendOSC(string name, float value) {
     static VMMOscMessageEvent vmmOscEvent;
     vmmOscEvent.composeOscMsg(track+1, name, value);
     ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
-}
-
-
-
-void ofxTLVMMControl::setGuiSliderValue(string param, float value){
-    if(param == "localCopies"){
-        //cout << "ofxTLVMMControl::setGuiSliderValue > track: " << track << endl;
-        
-        //update the gui
-        //TODO:  change to ofParam
-        //updateGuiSlider(param, value);
-        
-        
-        
-        //send out the osc
-        static VMMOscMessageEvent vmmOscEvent;
-        vmmOscEvent.composeOscMsg(track+1, param, value);
-        ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
-    
-    }
 }
 
 void ofxTLVMMControl::setGuiValue(string param, int value){
@@ -216,7 +233,7 @@ void ofxTLVMMControl::updateGuiSlider(string name, int value){
 //in setup. Must call superclass's method as well as doing your own
 //enabling and disabling
 void ofxTLVMMControl::enable(){
-	ofxTLTrack::enable();
+    ofxTLTrack::enable();
     
     cout << "Called from TimelinePanel - ofxTLVMMControl::enable()" << endl;
     
@@ -228,10 +245,17 @@ void ofxTLVMMControl::enable(){
     globalCopiesSlider->setEnabled(true);
     mirrorDistanceSlider->setEnabled(true);
     
+    playNoteOffToggle->setEnabled(true);
+    //playNoteOffToggle->setEnabled(true);
+    
+    //showGui = true;
+    
+    cout << "enable() - showGui " << showGui << endl;
+    
 }
 
 void ofxTLVMMControl::disable(){
-	ofxTLTrack::disable();
+    ofxTLTrack::disable();
 
     cout << "Called from TimelinePanel - ofxTLVMMControl::disable()" << endl;
     
@@ -243,13 +267,15 @@ void ofxTLVMMControl::disable(){
     globalCopiesSlider->setEnabled(false);
     mirrorDistanceSlider->setEnabled(false);
     
+    playNoteOffToggle->setEnabled(false);
+    //playNoteOffToggle->setVisible(false);
+    
+    //showGui = false;
+    
+    cout << "disable() - showGui " << showGui << endl;
 }
 
 void ofxTLVMMControl::trackGuiDelete(){
-//    trackGui->disable();
-//    ofRemoveListener(trackGui->newGUIEvent, this, &ofxTLVMMControl::trackGuiEvent);
-    
-    //gui->setEnabled(false);
     
     delete OSCsetMatCapSlider;
     delete OSCsetTrackSlider;
@@ -265,7 +291,7 @@ void ofxTLVMMControl::trackGuiDelete(){
     delete mirrorZToggle;
     
     //  REMOVE LISTENERS
-    
+    //ofRemoveListener(trackGui->newGUIEvent, this, &ofxTLVMMControl::trackGuiEvent);
     //ofRemoveListener(, this, &ofxTLVMMControl::trackGuiSliderEvent);
     //ofRemoveListener(OSCsetTrackSlider, this, &ofxTLVMMControl::trackGuiSliderEvent);
 }
@@ -276,6 +302,8 @@ void ofxTLVMMControl::trackGuiDelete(){
 //be careful if loading images in herre
 void ofxTLVMMControl::update(){
     
+    
+    
     //    //get the bounds of the track.  used to show or hide the GUI.
     //    cout << "gui height: " << gui->getHeight() <<
     //    " track minY: " << bounds.getMinY() <<
@@ -283,37 +311,36 @@ void ofxTLVMMControl::update(){
     //    " getBottom - getTop = " << bounds.getBottom()-bounds.getTop() <<
     //    endl;
     
-    
-    
-    //ALL THIS BELOW SETS THE VISIBILITY OF THE GUI ELEMENTS WHEN YOU MINIMIZE THE TRACK
-    //TODO: SET THIS UP TO WORK ON UNNAMED COMPONENTS (ALA SONSCOPIA)
-    //TODO: HIDE(OR PREVENT TRIGGERING) THE GUI ELEMENTS WHEN TRACK IS NOT FOCUSED.
-
-    
     //FINAL PLACEMENT CODE
+    //column 1
     OSCsetMatCapSlider->setPosition(bounds.getX(), bounds.getY());
     OSCsetMatCapSlider->setVisible(bounds.getBottom()-bounds.getTop() < OSCsetMatCapSlider->getHeight() ? false : true);
     OSCsetMatCapSlider->update();
     
-    OSCsetTrackSlider->setPosition(bounds.getX(), bounds.getY()+comp);
-    OSCsetTrackSlider->setVisible(bounds.getBottom()-bounds.getTop() < (OSCsetTrackSlider->getHeight()+comp) ? false : true);
+    OSCsetTrackSlider->setPosition(bounds.getX(), bounds.getY()+compH);
+    OSCsetTrackSlider->setVisible(bounds.getBottom()-bounds.getTop() < (OSCsetTrackSlider->getHeight()+compH) ? false : true);
     OSCsetTrackSlider->update();
     
-    localSlicesSlider->setPosition(bounds.getX(), bounds.getY()+(comp*2));
-    localSlicesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localSlicesSlider->getHeight()+(comp*2)) ? false : true);
+    localSlicesSlider->setPosition(bounds.getX(), bounds.getY()+(compH*2));
+    localSlicesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localSlicesSlider->getHeight()+(compH*2)) ? false : true);
     localSlicesSlider->update();
     
-    localCopiesSlider->setPosition(bounds.getX(), bounds.getY()+(comp*3));
-    localCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localCopiesSlider->getHeight()+(comp*3)) ? false : true);
+    localCopiesSlider->setPosition(bounds.getX(), bounds.getY()+(compH*3));
+    localCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localCopiesSlider->getHeight()+(compH*3)) ? false : true);
     localCopiesSlider->update();
     
-    globalCopiesSlider->setPosition(bounds.getX(), bounds.getY()+(comp*4));
-    globalCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (globalCopiesSlider->getHeight()+(comp*4)) ? false : true);
+    globalCopiesSlider->setPosition(bounds.getX(), bounds.getY()+(compH*4));
+    globalCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (globalCopiesSlider->getHeight()+(compH*4)) ? false : true);
     globalCopiesSlider->update();
     
-    mirrorDistanceSlider->setPosition(bounds.getX(), bounds.getY()+(comp*5));
-    mirrorDistanceSlider->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorDistanceSlider->getHeight()+(comp*5)) ? false : true);
+    mirrorDistanceSlider->setPosition(bounds.getX(), bounds.getY()+(compH*5));
+    mirrorDistanceSlider->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorDistanceSlider->getHeight()+(compH*5)) ? false : true);
     mirrorDistanceSlider->update();
+    
+    //column 2
+    playNoteOffToggle->setPosition(bounds.getX()+compW, bounds.getY());
+    playNoteOffToggle->setVisible(bounds.getBottom()-bounds.getTop() < playNoteOffToggle->getHeight() ? false : true);
+    playNoteOffToggle->update();
  
 }
 
@@ -321,13 +348,17 @@ void ofxTLVMMControl::update(){
 //and the Track functions screenXToMillis() or millisToScreenX() to respect zoom
 void ofxTLVMMControl::draw(){
     
-
+   
     OSCsetMatCapSlider->draw();
     OSCsetTrackSlider->draw();
     localSlicesSlider->draw();
     localCopiesSlider->draw();
     globalCopiesSlider->draw();
     mirrorDistanceSlider->draw();
+    
+    
+    playNoteOffToggle->draw();
+    
     
 	//this is just a simple example (not working for me)
 	/*
@@ -456,6 +487,7 @@ void ofxTLVMMControl::save(){
     savedButtonsTrack.addValue(localCopies.getName(), localCopies.get());
     savedButtonsTrack.addValue(globalCopies.getName(), globalCopies.get());
     savedButtonsTrack.addValue(mirrorDistance.getName(), mirrorDistance.get());
+    savedButtonsTrack.addValue("playNoteOff", playNoteOff);
     savedButtonsTrack.popTag();
     
     //cout where and what to save.
@@ -478,15 +510,12 @@ void ofxTLVMMControl::load(){
         ofLogVerbose("LOAD") << "ofxTLVMMControl::load() - Loading VMM.xml " << savedClipSettingsPath;
         
         //update the params
-        //TODO: ceate a function with all the setting to set from xml.
-        //setGuiSliderValue("localCopies",savedVMMSettings.getValue("VMM:localCopies", 0));
-        
         int VMM_OSCsetMatCap = savedVMMSettings.getValue("VMM:OSCsetMatCap", 0);
         sendOSC("OSCsetMatCap", VMM_OSCsetMatCap);
         OSCsetMatCap.set(VMM_OSCsetMatCap);
         
         int VMM_OSCsetTrack = savedVMMSettings.getValue("VMM:OSCsetTrack", 0);
-        sendOSC("OSCsetTrack", VMM_OSCsetTrack);
+        //sendOSC("OSCsetTrack", VMM_OSCsetTrack);
         OSCsetTrack.set(VMM_OSCsetTrack);
         
         int VMM_localSlices = savedVMMSettings.getValue("VMM:localSlices", 0);
@@ -504,6 +533,10 @@ void ofxTLVMMControl::load(){
         int VMM_mirrorDistance = savedVMMSettings.getValue("VMM:mirrorDistance", 0);
         sendOSC("mirrorDistance", VMM_mirrorDistance);
         mirrorDistance.set(VMM_mirrorDistance);
+        
+        bool VMM_playNoteOff = savedVMMSettings.getValue("VMM:playNoteOff", 0);
+        sendOSC("playNoteOff", VMM_playNoteOff);
+        playNoteOff = VMM_playNoteOff;
         
     }else{
         ofLogError("LOAD") <<  "ofxTLVMMControl::load() - unable to load: " << savedClipSettingsPath ;

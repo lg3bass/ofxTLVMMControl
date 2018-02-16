@@ -101,7 +101,7 @@ class ofxTLVMMControl : public ofxTLTrack {
     
     //playNoteOff
     bool playNoteOff;
-    ofxDatGuiToggle* playNoteOffToggle;
+    ofxDatGuiButton* playNoteOffToggle;
     
     bool playAll;
     ofxDatGuiToggle* playAllToggle;
@@ -118,8 +118,9 @@ class ofxTLVMMControl : public ofxTLTrack {
     bool mirrorZ;
     ofxDatGuiToggle* mirrorZToggle;
 
-    int comp = 24;
-    
+    bool showGui;
+    int compH = 24;
+    int compW = 200;
     
     //test params for VMM
     bool test_still;
@@ -129,20 +130,19 @@ class ofxTLVMMControl : public ofxTLTrack {
     // ofxDatGui
     void setupTrack();
     
+    void setButtonToggle(ofxDatGuiButton* _button, bool &val);
+    
     ofxDatGuiToggle* tgl_still;
     ofxDatGuiButton* but_noteOnAndPlay;
     ofxDatGuiSlider* slider_localCopies;
     
-    void trackGuiEvent(ofxDatGuiButtonEvent e);
+    void trackGuiEvent(ofxDatGuiButtonEvent e);     //TODO: delete me
     
     void trackGuiButtonEvent(ofxDatGuiButtonEvent e);
     void trackGuiSliderEvent(ofxDatGuiSliderEvent e);
     
-    
     void sendOSC(string name, float value);
     
-    
-    void setGuiSliderValue(string param, float value);
     void setGuiValue(string param, int value);
     void setGuiValue(string param, bool value);
     
