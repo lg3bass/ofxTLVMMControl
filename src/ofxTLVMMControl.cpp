@@ -34,12 +34,13 @@
 #include "ofxTimeline.h"
 
 // setup the events to pass back
-//ofEvent <OscMsgEvent> OscMsgEvent::events;
-//ofEvent <anotherOscMsgEvent> anotherOscMsgEvent::events;
 ofEvent <VMMOscMessageEvent> VMMOscMessageEvent::events;
 
-//TODO: make single constructor without variables.
+//================================================================================
 ofxTLVMMControl::ofxTLVMMControl(){
+    
+    //flag to accept gui events.
+    guiAcceptEvents = true;
     
     
     //setup all my params
@@ -56,26 +57,18 @@ ofxTLVMMControl::ofxTLVMMControl(){
     mirrorX = false;
     mirrorY = false;
     mirrorZ = false;
-    
-    //test variables
-    test_still = false;
-    test_noteOnAndPlay = 0;
-    test_localCopies = 5.0;
-    
+        
     setupTrack();
-
 }
 
 ofxTLVMMControl::~ofxTLVMMControl(){
 
-    
     trackGuiDelete();
-    
 }
 
 
-//ofxDatGui
-//================================================================================
+//ofxDatGui setup elements
+//--------------------------------------------------------------
 void ofxTLVMMControl::setupTrack(){
     
     //Col 1
@@ -85,7 +78,7 @@ void ofxTLVMMControl::setupTrack(){
     OSCsetMatCapSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
     OSCsetTrackSlider = new ofxDatGuiSlider(OSCsetTrack);
-    OSCsetMatCapSlider->setLabelMargin(10.0);
+    OSCsetTrackSlider->setLabelMargin(10.0);
     OSCsetTrackSlider->setWidth(200.0, 80.0);
     OSCsetTrackSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
@@ -110,16 +103,12 @@ void ofxTLVMMControl::setupTrack(){
     mirrorDistanceSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
     //Col 2
-    playNoteOffToggle = new ofxDatGuiButton("playNoteOff");
+    playNoteOffToggle = new ofxDatGuiToggle("playNoteOff", playNoteOff);
     playNoteOffToggle->setWidth(compW);
     playNoteOffToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
-    
-    //playNoteOffToggle->buttonEventCallback
-    
-    
-    
 }
 
+//use this if you want the ofxDatGuiButton to behave like a toggle.
 //--------------------------------------------------------------
 void ofxTLVMMControl::setButtonToggle(ofxDatGuiButton *_button, bool &val){
     
@@ -133,109 +122,57 @@ void ofxTLVMMControl::setButtonToggle(ofxDatGuiButton *_button, bool &val){
         cout << "drive off" << endl;
         
     }
-    
 }
 
-
-//BUTTON AND TOGGLE EVENTS
-//TODO: delete me.
-void ofxTLVMMControl::trackGuiEvent(ofxDatGuiButtonEvent e){
-    
-    if(e.target->is("still")){
-        string labelString = e.target->getName();
-        bool tglEnabled = e.target->getEnabled();
-        test_still = tglEnabled;
-        string isEnabled = tglEnabled ? "true" : "false";
-        //sendOscMessage(labelString, test_still);
-        //TODO: send osc via event
-    } else if (e.target->is("noteOnAndPlay")){
-        
-        string labelString = e.target->getName();
-        //sendOscNoteOnAndPlay(labelString);
-        //TODO: send osc via event
-    }
-}
 
 //BUTTON EVENTS
+//--------------------------------------------------------------
 void ofxTLVMMControl::trackGuiButtonEvent(ofxDatGuiButtonEvent e){
+    
+    //register all the boolean toggles.
     if(e.target->is("playNoteOff")){
         
-        setButtonToggle(e.target, playNoteOff);
+        //ofxDatGuiButton (as toggle) - sample code
+        //setButtonToggle(e.target, playNoteOff);
+        //sendOSC("playNoteOff", playNoteOff);
+        
+        //ofxDatGuiToggle
+        bool tglStatus = e.target->getEnabled();
+        playNoteOff = tglStatus;
         sendOSC("playNoteOff", playNoteOff);
-        
-        //bool tglStatus = e.target->getEnabled();
-        //playNoteOff = tglStatus;
-        
         
     } else if (e.target->is("playAll")){
         
         
     }
-    
+    //...add more
     
 }
 
 //SLIDER EVENTS
+//--------------------------------------------------------------
 void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
 
     sendOSC(e.target->getName(), e.target->getValue());
-    
-    /*
-    if(e.target->is("localCopies")){
-        
-        //set the local var.
-        test_localCopies = e.target->getValue();
-        
-        //get the slidername and value
-        string labelString = e.target->getName();
-        float value = e.target->getValue();
-        
-        //4. class VMMOscMessageEvent
-        static VMMOscMessageEvent vmmOscEvent;
-        vmmOscEvent.composeOscMsg(track+1, labelString, test_localCopies);
-        ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
-        
-    } else {
-
-    }
-    */
 }
 
-
+//--------------------------------------------------------------
 void ofxTLVMMControl::sendOSC(string name, float value) {
     static VMMOscMessageEvent vmmOscEvent;
     vmmOscEvent.composeOscMsg(track+1, name, value);
     ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
 }
 
-void ofxTLVMMControl::setGuiValue(string param, int value){
-    
-}
-void ofxTLVMMControl::setGuiValue(string param, bool value){
-    
-}
-
-void ofxTLVMMControl::updateGuiToggle(string name, bool value){
-    
-}
-void ofxTLVMMControl::updateGuiSlider(string name, float value){
-    if(name == "localCopies"){
-        //gui->getSlider(name)->setValue(value);
-    }
-}
-void ofxTLVMMControl::updateGuiSlider(string name, int value){
-    
-}
-
- 
- 
 //enable and disable are always automatically called
 //in setup. Must call superclass's method as well as doing your own
 //enabling and disabling
+//--------------------------------------------------------------
 void ofxTLVMMControl::enable(){
+
     ofxTLTrack::enable();
     
-    cout << "Called from TimelinePanel - ofxTLVMMControl::enable()" << endl;
+    guiAcceptEvents = true;
+    cout << "Called from TimelinePanel - ofxTLVMMControl::enable() - guiAcceptEvents " << guiAcceptEvents << endl;
     
 	//other enabling
     OSCsetMatCapSlider->setEnabled(true);
@@ -244,20 +181,14 @@ void ofxTLVMMControl::enable(){
     localCopiesSlider->setEnabled(true);
     globalCopiesSlider->setEnabled(true);
     mirrorDistanceSlider->setEnabled(true);
-    
-    playNoteOffToggle->setEnabled(true);
-    //playNoteOffToggle->setEnabled(true);
-    
-    //showGui = true;
-    
-    cout << "enable() - showGui " << showGui << endl;
-    
 }
 
 void ofxTLVMMControl::disable(){
+
     ofxTLTrack::disable();
 
-    cout << "Called from TimelinePanel - ofxTLVMMControl::disable()" << endl;
+    guiAcceptEvents = false;
+    cout << "Called from TimelinePanel - ofxTLVMMControl::disable() - guiAcceptEvents " << guiAcceptEvents << endl;
     
 	//other disabling
     OSCsetMatCapSlider->setEnabled(false);
@@ -266,15 +197,9 @@ void ofxTLVMMControl::disable(){
     localCopiesSlider->setEnabled(false);
     globalCopiesSlider->setEnabled(false);
     mirrorDistanceSlider->setEnabled(false);
-    
-    playNoteOffToggle->setEnabled(false);
-    //playNoteOffToggle->setVisible(false);
-    
-    //showGui = false;
-    
-    cout << "disable() - showGui " << showGui << endl;
 }
 
+//--------------------------------------------------------------
 void ofxTLVMMControl::trackGuiDelete(){
     
     delete OSCsetMatCapSlider;
@@ -299,10 +224,9 @@ void ofxTLVMMControl::trackGuiDelete(){
 //update is called every frame.
 //if your track triggers events it's good to do it here
 //if timeline is set to thread this is called on the back thread so
-//be careful if loading images in herre
+//be careful if loading images in here
+//--------------------------------------------------------------
 void ofxTLVMMControl::update(){
-    
-    
     
     //    //get the bounds of the track.  used to show or hide the GUI.
     //    cout << "gui height: " << gui->getHeight() <<
@@ -315,40 +239,39 @@ void ofxTLVMMControl::update(){
     //column 1
     OSCsetMatCapSlider->setPosition(bounds.getX(), bounds.getY());
     OSCsetMatCapSlider->setVisible(bounds.getBottom()-bounds.getTop() < OSCsetMatCapSlider->getHeight() ? false : true);
-    OSCsetMatCapSlider->update();
+    OSCsetMatCapSlider->update(guiAcceptEvents);
     
     OSCsetTrackSlider->setPosition(bounds.getX(), bounds.getY()+compH);
     OSCsetTrackSlider->setVisible(bounds.getBottom()-bounds.getTop() < (OSCsetTrackSlider->getHeight()+compH) ? false : true);
-    OSCsetTrackSlider->update();
+    OSCsetTrackSlider->update(guiAcceptEvents);
     
     localSlicesSlider->setPosition(bounds.getX(), bounds.getY()+(compH*2));
     localSlicesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localSlicesSlider->getHeight()+(compH*2)) ? false : true);
-    localSlicesSlider->update();
+    localSlicesSlider->update(guiAcceptEvents);
     
     localCopiesSlider->setPosition(bounds.getX(), bounds.getY()+(compH*3));
     localCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localCopiesSlider->getHeight()+(compH*3)) ? false : true);
-    localCopiesSlider->update();
+    localCopiesSlider->update(guiAcceptEvents);
     
     globalCopiesSlider->setPosition(bounds.getX(), bounds.getY()+(compH*4));
     globalCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (globalCopiesSlider->getHeight()+(compH*4)) ? false : true);
-    globalCopiesSlider->update();
+    globalCopiesSlider->update(guiAcceptEvents);
     
     mirrorDistanceSlider->setPosition(bounds.getX(), bounds.getY()+(compH*5));
     mirrorDistanceSlider->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorDistanceSlider->getHeight()+(compH*5)) ? false : true);
-    mirrorDistanceSlider->update();
+    mirrorDistanceSlider->update(guiAcceptEvents);
     
     //column 2
     playNoteOffToggle->setPosition(bounds.getX()+compW, bounds.getY());
     playNoteOffToggle->setVisible(bounds.getBottom()-bounds.getTop() < playNoteOffToggle->getHeight() ? false : true);
-    playNoteOffToggle->update();
- 
+    playNoteOffToggle->update(guiAcceptEvents);
 }
 
 //draw your track contents. use ofRectangle bounds to know where to draw
 //and the Track functions screenXToMillis() or millisToScreenX() to respect zoom
+//--------------------------------------------------------------
 void ofxTLVMMControl::draw(){
     
-   
     OSCsetMatCapSlider->draw();
     OSCsetTrackSlider->draw();
     localSlicesSlider->draw();
@@ -356,12 +279,10 @@ void ofxTLVMMControl::draw(){
     globalCopiesSlider->draw();
     mirrorDistanceSlider->draw();
     
-    
     playNoteOffToggle->draw();
     
-    
 	//this is just a simple example (not working for me)
-	/*
+	/* SAMPLE CODE
 	ofPushStyle();
 	ofFill();
 	if(isHovering()){
@@ -385,23 +306,30 @@ void ofxTLVMMControl::draw(){
 }
 
 //caled by the timeline, don't need to register events
+//--------------------------------------------------------------
 bool ofxTLVMMControl::mousePressed(ofMouseEventArgs& args, long millis){
-	/*
+	
+    /* SAMPLE CODE
 	createNewPoint = isActive();
 	clickPoint = ofVec2f(args.x,args.y);
 	return createNewPoint; //signals that the click made a selection
 	*/
 }
 
+//--------------------------------------------------------------
 void ofxTLVMMControl::mouseMoved(ofMouseEventArgs& args, long millis){
 
 }
+
+//--------------------------------------------------------------
 void ofxTLVMMControl::mouseDragged(ofMouseEventArgs& args, long millis){
 
 }
+
+//--------------------------------------------------------------
 void ofxTLVMMControl::mouseReleased(ofMouseEventArgs& args, long millis){
 
-	/*
+	/* SAMPLE CODE
 	//need to create clicks on mouse up if the mouse hasn't moved in order to work
 	//well with the click-drag rectangle thing
 	if(createNewPoint && clickPoint.distance(ofVec2f(args.x, args.y)) < 4){
@@ -417,6 +345,7 @@ void ofxTLVMMControl::mouseReleased(ofMouseEventArgs& args, long millis){
 }
 
 //keys pressed events, and nuding from arrow keys with normalized nudge amount 0 - 1.0
+//--------------------------------------------------------------
 void ofxTLVMMControl::keyPressed(ofKeyEventArgs& args){
 
 }
@@ -426,6 +355,7 @@ void ofxTLVMMControl::nudgeBy(ofVec2f nudgePercent){
 
 //if your track has some selectable elements you can interface with snapping
 //and selection/unselection here
+//--------------------------------------------------------------
 void ofxTLVMMControl::getSnappingPoints(set<unsigned long>& points){
 
 }
@@ -472,6 +402,7 @@ void ofxTLVMMControl::loadFromXMLRepresentation(string rep){
 
 //serialize your track.
 //use ofxTLTrack's string xmlFileName
+//--------------------------------------------------------------
 void ofxTLVMMControl::save(){
     cout << "ofxTLVMMControl::save()" << endl;
     
@@ -501,6 +432,7 @@ void ofxTLVMMControl::save(){
     
 }
 
+//--------------------------------------------------------------
 void ofxTLVMMControl::load(){
     
     string savedClipSettingsPath = getXMLFilePath();
@@ -537,6 +469,7 @@ void ofxTLVMMControl::load(){
         bool VMM_playNoteOff = savedVMMSettings.getValue("VMM:playNoteOff", 0);
         sendOSC("playNoteOff", VMM_playNoteOff);
         playNoteOff = VMM_playNoteOff;
+        playNoteOffToggle->setEnabled(playNoteOff);
         
     }else{
         ofLogError("LOAD") <<  "ofxTLVMMControl::load() - unable to load: " << savedClipSettingsPath ;
