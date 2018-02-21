@@ -106,6 +106,26 @@ void ofxTLVMMControl::setupTrack(){
     playNoteOffToggle = new ofxDatGuiToggle("playNoteOff", playNoteOff);
     playNoteOffToggle->setWidth(compW);
     playNoteOffToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    playAllToggle = new ofxDatGuiToggle("playAll", playAll);
+    playAllToggle->setWidth(compW);
+    playAllToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    mirrorToggle = new ofxDatGuiToggle("mirror", mirror);
+    mirrorToggle->setWidth(compW);
+    mirrorToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    mirrorXToggle = new ofxDatGuiToggle("mirrorX", mirrorX);
+    mirrorXToggle->setWidth(compW);
+    mirrorXToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    mirrorYToggle = new ofxDatGuiToggle("mirrorY", mirrorY);
+    mirrorYToggle->setWidth(compW);
+    mirrorYToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    mirrorZToggle = new ofxDatGuiToggle("mirrorZ", mirrorZ);
+    mirrorZToggle->setWidth(compW);
+    mirrorZToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
 }
 
 //use this if you want the ofxDatGuiButton to behave like a toggle.
@@ -143,9 +163,34 @@ void ofxTLVMMControl::trackGuiButtonEvent(ofxDatGuiButtonEvent e){
         
     } else if (e.target->is("playAll")){
         
+        bool playAllTglStatus = e.target->getEnabled();
+        playAll = playAllTglStatus;
+        sendOSC("playAll", playAll);
+    } else if (e.target->is("mirror")){
         
-    }
-    //...add more
+        bool mirrorTglStatus = e.target->getEnabled();
+        mirror = mirrorTglStatus;
+        sendOSC("mirror", mirror);
+        
+    } else if (e.target->is("mirrorX")){
+        
+        bool mirrorXTglStatus = e.target->getEnabled();
+        mirrorX = mirrorXTglStatus;
+        sendOSC("mirrorX", mirrorX);
+        
+    } else if (e.target->is("mirrorY")){
+        
+        bool mirrorYTglStatus = e.target->getEnabled();
+        mirrorY = mirrorYTglStatus;
+        sendOSC("mirrorY", mirrorY);
+        
+    } else if (e.target->is("mirrorZ")){
+        
+        bool mirrorZTglStatus = e.target->getEnabled();
+        mirrorZ = mirrorZTglStatus;
+        sendOSC("mirrorZ", mirrorZ);
+        
+    }    //...add more
     
 }
 
@@ -265,6 +310,26 @@ void ofxTLVMMControl::update(){
     playNoteOffToggle->setPosition(bounds.getX()+compW, bounds.getY());
     playNoteOffToggle->setVisible(bounds.getBottom()-bounds.getTop() < playNoteOffToggle->getHeight() ? false : true);
     playNoteOffToggle->update(guiAcceptEvents);
+    
+    playAllToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*1));
+    playAllToggle->setVisible(bounds.getBottom()-bounds.getTop() < (playAllToggle->getHeight()+(compH*1)) ? false : true);
+    playAllToggle->update(guiAcceptEvents);
+    
+    mirrorToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*2));
+    mirrorToggle->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorToggle->getHeight()+(compH*2)) ? false : true);
+    mirrorToggle->update(guiAcceptEvents);
+    
+    mirrorXToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*3));
+    mirrorXToggle->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorXToggle->getHeight()+(compH*3)) ? false : true);
+    mirrorXToggle->update(guiAcceptEvents);
+    
+    mirrorYToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*4));
+    mirrorYToggle->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorYToggle->getHeight()+(compH*4)) ? false : true);
+    mirrorYToggle->update(guiAcceptEvents);
+    
+    mirrorZToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*5));
+    mirrorZToggle->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorZToggle->getHeight()+(compH*5)) ? false : true);
+    mirrorZToggle->update(guiAcceptEvents);
 }
 
 //draw your track contents. use ofRectangle bounds to know where to draw
@@ -280,6 +345,12 @@ void ofxTLVMMControl::draw(){
     mirrorDistanceSlider->draw();
     
     playNoteOffToggle->draw();
+    playAllToggle->draw();
+    mirrorToggle->draw();
+    mirrorXToggle->draw();
+    mirrorYToggle->draw();
+    mirrorZToggle->draw();
+    
     
 	//this is just a simple example (not working for me)
 	/* SAMPLE CODE
@@ -419,6 +490,12 @@ void ofxTLVMMControl::save(){
     savedButtonsTrack.addValue(globalCopies.getName(), globalCopies.get());
     savedButtonsTrack.addValue(mirrorDistance.getName(), mirrorDistance.get());
     savedButtonsTrack.addValue("playNoteOff", playNoteOff);
+    savedButtonsTrack.addValue("playAll", playAll);
+    savedButtonsTrack.addValue("mirror", mirror);
+    savedButtonsTrack.addValue("mirrorX", mirrorX);
+    savedButtonsTrack.addValue("mirrorY", mirrorY);
+    savedButtonsTrack.addValue("mirrorZ", mirrorZ);
+    
     savedButtonsTrack.popTag();
     
     //cout where and what to save.
@@ -470,6 +547,31 @@ void ofxTLVMMControl::load(){
         sendOSC("playNoteOff", VMM_playNoteOff);
         playNoteOff = VMM_playNoteOff;
         playNoteOffToggle->setEnabled(playNoteOff);
+        
+        bool VMM_playAll = savedVMMSettings.getValue("VMM:playAll", 0);
+        sendOSC("playAll", VMM_playAll);
+        playAll = VMM_playAll;
+        playAllToggle->setEnabled(playAll);
+        
+        bool VMM_mirror = savedVMMSettings.getValue("VMM:mirror", 0);
+        sendOSC("mirror", VMM_mirror);
+        mirror = VMM_mirror;
+        mirrorToggle->setEnabled(mirror);
+        
+        bool VMM_mirrorX = savedVMMSettings.getValue("VMM:mirrorX", 0);
+        sendOSC("mirrorX", VMM_mirrorX);
+        mirrorX = VMM_mirrorX;
+        mirrorXToggle->setEnabled(mirrorX);
+        
+        bool VMM_mirrorY = savedVMMSettings.getValue("VMM:mirrorY", 0);
+        sendOSC("mirrorY", VMM_mirrorY);
+        mirrorY = VMM_mirrorY;
+        mirrorYToggle->setEnabled(mirrorY);
+        
+        bool VMM_mirrorZ = savedVMMSettings.getValue("VMM:mirrorZ", 0);
+        sendOSC("mirrorZ", VMM_mirrorZ);
+        mirrorZ = VMM_mirrorZ;
+        mirrorZToggle->setEnabled(mirrorZ);
         
     }else{
         ofLogError("LOAD") <<  "ofxTLVMMControl::load() - unable to load: " << savedClipSettingsPath ;
