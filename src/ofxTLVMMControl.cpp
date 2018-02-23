@@ -309,7 +309,15 @@ void ofxTLVMMControl::trackGuiButtonEvent(ofxDatGuiButtonEvent e){
 //--------------------------------------------------------------
 void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
 
+    if(e.target->getName() == "localCopies"){
+
+        float angle = 360.0/e.target->getValue();
+        setLocalRotZ.set(angle);
+
+    }
+
     sendOSC(e.target->getName(), e.target->getValue());
+    
 }
 
 //--------------------------------------------------------------
