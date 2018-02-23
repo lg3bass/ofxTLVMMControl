@@ -81,24 +81,6 @@ class ofxTLVMMControl : public ofxTLTrack {
 
     int track;  //store the current track
     
-    ofParameter<int> OSCsetMatCap;
-    ofxDatGuiSlider* OSCsetMatCapSlider;
-    
-    ofParameter<int> OSCsetTrack;
-    ofxDatGuiSlider* OSCsetTrackSlider;
-        
-    ofParameter<int> localSlices;
-    ofxDatGuiSlider* localSlicesSlider;
-    
-    ofParameter<int> localCopies;
-    ofxDatGuiSlider* localCopiesSlider;
-    
-    ofParameter<int> globalCopies;
-    ofxDatGuiSlider* globalCopiesSlider;
- 
-    ofParameter<float> mirrorDistance;
-    ofxDatGuiSlider* mirrorDistanceSlider;
-    
     bool playNoteOff;
     ofxDatGuiButton* playNoteOffToggle;
     
@@ -117,10 +99,82 @@ class ofxTLVMMControl : public ofxTLTrack {
     bool mirrorZ;
     ofxDatGuiToggle* mirrorZToggle;
     
+    ofParameter<int> OSCsetMatCap;
+    ofxDatGuiSlider* OSCsetMatCapSlider;
+    
+    ofParameter<int> OSCsetTrack;
+    ofxDatGuiSlider* OSCsetTrackSlider;
+        
+    ofParameter<int> localSlices;
+    ofxDatGuiSlider* localSlicesSlider;
+    
+    ofParameter<int> localCopies;
+    ofxDatGuiSlider* localCopiesSlider;
+    
+    ofParameter<int> globalCopies;
+    ofxDatGuiSlider* globalCopiesSlider;
+ 
+    ofParameter<float> mirrorDistance;
+    ofxDatGuiSlider* mirrorDistanceSlider;
+
+    ofParameter<int> setGlobalRotX;
+    ofxDatGuiSlider* setGlobalRotXSlider;
+    
+    ofParameter<int> setGlobalRotY;
+    ofxDatGuiSlider* setGlobalRotYSlider;
+    
+    ofParameter<int> setGlobalRotZ;
+    ofxDatGuiSlider* setGlobalRotZSlider;
+    
+    ofParameter<int> setGlobalTransX;
+    ofxDatGuiSlider* setGlobalTransXSlider;
+    
+    ofParameter<int> setGlobalTransY;
+    ofxDatGuiSlider* setGlobalTransYSlider;
+    
+    ofParameter<int> setGlobalTransZ;
+    ofxDatGuiSlider* setGlobalTransZSlider;
+    
+    ofParameter<int> setLocalRotX;
+    ofxDatGuiSlider* setLocalRotXSlider;
+    
+    ofParameter<int> setLocalRotY;
+    ofxDatGuiSlider* setLocalRotYSlider;
+    
+    ofParameter<int> setLocalRotZ;
+    ofxDatGuiSlider* setLocalRotZSlider;
+    
+    ofParameter<int> setLocalTransX;
+    ofxDatGuiSlider* setLocalTransXSlider;
+    
+    ofParameter<int> setLocalTransY;
+    ofxDatGuiSlider* setLocalTransYSlider;
+    
+    ofParameter<int> setLocalTransZ;
+    ofxDatGuiSlider* setLocalTransZSlider;
+    
+    ofParameter<int> setObjRotX;
+    ofxDatGuiSlider* setObjRotXSlider;
+    
+    ofParameter<int> setObjRotY;
+    ofxDatGuiSlider* setObjRotYSlider;
+    
+    ofParameter<int> setObjRotZ;
+    ofxDatGuiSlider* setObjRotZSlider;
+    
+    ofParameter<int> localScale;
+    ofxDatGuiSlider* localScaleSlider;
+    
+    ofParameter<int> globalScale;
+    ofxDatGuiSlider* globalScaleSlider;
+    
+    
+    //
     bool guiAcceptEvents;
     
     int compH = 24;
     int compW = 200;
+    int tglW = 140;
     
     // ofxDatGui
     void setupTrack();

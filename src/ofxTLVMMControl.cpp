@@ -44,8 +44,8 @@ ofxTLVMMControl::ofxTLVMMControl(){
     
     
     //setup all my params
-    OSCsetMatCap.set("OSCsetMatCap",1,1,20);
-    OSCsetTrack.set("OSCsetTrack",1,1,20);
+    OSCsetMatCap.set("OSCsetMatCap",1,1,42);
+    OSCsetTrack.set("OSCsetTrack",1,1,25);
     localSlices.set("localSlices",2,1,4);
     localCopies.set("localCopies",8,1,12);
     globalCopies.set("globalCopies",1,1,12);
@@ -57,7 +57,30 @@ ofxTLVMMControl::ofxTLVMMControl(){
     mirrorX = false;
     mirrorY = false;
     mirrorZ = false;
-        
+    
+    setGlobalRotX.set("setGlobalRotX",0,-180,180);
+    setGlobalRotY.set("setGlobalRotY",0,-180,180);
+    setGlobalRotZ.set("setGlobalRotZ",0,-180,180);
+    
+    setGlobalTransX.set("setGlobalTransX",0,-100,100);
+    setGlobalTransY.set("setGlobalTransY",0,-100,100);
+    setGlobalTransZ.set("setGlobalTransZ",0,-100,100);
+
+    setLocalRotX.set("setLocalRotX",0,-180,180);
+    setLocalRotY.set("setLocalRotY",0,-180,180);
+    setLocalRotZ.set("setLocalRotZ",0,-180,180);
+    
+    setLocalTransX.set("setLocalTransX",0,-100,100);
+    setLocalTransY.set("setLocalTransY",0,-100,100);
+    setLocalTransZ.set("setLocalTransZ",0,-100,100);
+    
+    setObjRotX.set("setObjRotX",0,-180,180);
+    setObjRotY.set("setObjRotY",0,-180,180);
+    setObjRotZ.set("setObjRotZ",0,-180,180);
+    localScale.set("localScale",1,1,10);
+    globalScale.set("globalScale",10,1,50);
+    
+    //create all the gui components.
     setupTrack();
 }
 
@@ -71,61 +94,149 @@ ofxTLVMMControl::~ofxTLVMMControl(){
 //--------------------------------------------------------------
 void ofxTLVMMControl::setupTrack(){
     
-    //Col 1
+    //column 1
+    playNoteOffToggle = new ofxDatGuiToggle("playNoteOff", playNoteOff);
+    playNoteOffToggle->setWidth(tglW);
+    playNoteOffToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    playAllToggle = new ofxDatGuiToggle("playAll", playAll);
+    playAllToggle->setWidth(tglW);
+    playAllToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    mirrorToggle = new ofxDatGuiToggle("mirror", mirror);
+    mirrorToggle->setWidth(tglW);
+    mirrorToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    mirrorXToggle = new ofxDatGuiToggle("mirrorX", mirrorX);
+    mirrorXToggle->setWidth(tglW);
+    mirrorXToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    mirrorYToggle = new ofxDatGuiToggle("mirrorY", mirrorY);
+    mirrorYToggle->setWidth(tglW);
+    mirrorYToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    mirrorZToggle = new ofxDatGuiToggle("mirrorZ", mirrorZ);
+    mirrorZToggle->setWidth(tglW);
+    mirrorZToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    
+    //column 2
     OSCsetMatCapSlider = new ofxDatGuiSlider(OSCsetMatCap);
     OSCsetMatCapSlider->setLabelMargin(10.0);
-    OSCsetMatCapSlider->setWidth(200.0, 80.0);
+    OSCsetMatCapSlider->setWidth(compW, 80.0);
     OSCsetMatCapSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
     OSCsetTrackSlider = new ofxDatGuiSlider(OSCsetTrack);
     OSCsetTrackSlider->setLabelMargin(10.0);
-    OSCsetTrackSlider->setWidth(200.0, 80.0);
+    OSCsetTrackSlider->setWidth(compW, 80.0);
     OSCsetTrackSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
     localSlicesSlider = new ofxDatGuiSlider(localSlices);
     localSlicesSlider->setLabelMargin(10.0);
-    localSlicesSlider->setWidth(200.0, 80.0);
+    localSlicesSlider->setWidth(compW, 80.0);
     localSlicesSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
     localCopiesSlider = new ofxDatGuiSlider(localCopies);
     localCopiesSlider->setLabelMargin(10.0);
-    localCopiesSlider->setWidth(200.0, 80.0);
+    localCopiesSlider->setWidth(compW, 80.0);
     localCopiesSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
     globalCopiesSlider = new ofxDatGuiSlider(globalCopies);
     globalCopiesSlider->setLabelMargin(10.0);
-    globalCopiesSlider->setWidth(200.0, 80.0);
+    globalCopiesSlider->setWidth(compW, 80.0);
     globalCopiesSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
     mirrorDistanceSlider = new ofxDatGuiSlider(mirrorDistance);
     mirrorDistanceSlider->setLabelMargin(10.0);
-    mirrorDistanceSlider->setWidth(200.0, 80.0);
+    mirrorDistanceSlider->setWidth(compW, 80.0);
     mirrorDistanceSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
-    //Col 2
-    playNoteOffToggle = new ofxDatGuiToggle("playNoteOff", playNoteOff);
-    playNoteOffToggle->setWidth(compW);
-    playNoteOffToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    //column 3
+    setGlobalRotXSlider = new ofxDatGuiSlider(setGlobalRotX);
+    setGlobalRotXSlider->setLabelMargin(10.0);
+    setGlobalRotXSlider->setWidth(compW, 80.0);
+    setGlobalRotXSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
-    playAllToggle = new ofxDatGuiToggle("playAll", playAll);
-    playAllToggle->setWidth(compW);
-    playAllToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    setGlobalRotYSlider = new ofxDatGuiSlider(setGlobalRotY);
+    setGlobalRotYSlider->setLabelMargin(10.0);
+    setGlobalRotYSlider->setWidth(compW, 80.0);
+    setGlobalRotYSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
-    mirrorToggle = new ofxDatGuiToggle("mirror", mirror);
-    mirrorToggle->setWidth(compW);
-    mirrorToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    setGlobalRotZSlider = new ofxDatGuiSlider(setGlobalRotZ);
+    setGlobalRotZSlider->setLabelMargin(10.0);
+    setGlobalRotZSlider->setWidth(compW, 80.0);
+    setGlobalRotZSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
-    mirrorXToggle = new ofxDatGuiToggle("mirrorX", mirrorX);
-    mirrorXToggle->setWidth(compW);
-    mirrorXToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    setGlobalTransXSlider = new ofxDatGuiSlider(setGlobalTransX);
+    setGlobalTransXSlider->setLabelMargin(10.0);
+    setGlobalTransXSlider->setWidth(compW, 80.0);
+    setGlobalTransXSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
-    mirrorYToggle = new ofxDatGuiToggle("mirrorY", mirrorY);
-    mirrorYToggle->setWidth(compW);
-    mirrorYToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    setGlobalTransYSlider = new ofxDatGuiSlider(setGlobalTransY);
+    setGlobalTransYSlider->setLabelMargin(10.0);
+    setGlobalTransYSlider->setWidth(compW, 80.0);
+    setGlobalTransYSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
     
-    mirrorZToggle = new ofxDatGuiToggle("mirrorZ", mirrorZ);
-    mirrorZToggle->setWidth(compW);
-    mirrorZToggle->onButtonEvent(this, &ofxTLVMMControl::trackGuiButtonEvent);
+    setGlobalTransZSlider = new ofxDatGuiSlider(setGlobalTransZ);
+    setGlobalTransZSlider->setLabelMargin(10.0);
+    setGlobalTransZSlider->setWidth(compW, 80.0);
+    setGlobalTransZSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    //column 4
+    setLocalRotXSlider = new ofxDatGuiSlider(setLocalRotX);
+    setLocalRotXSlider->setLabelMargin(10.0);
+    setLocalRotXSlider->setWidth(compW, 80.0);
+    setLocalRotXSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    setLocalRotYSlider = new ofxDatGuiSlider(setLocalRotY);
+    setLocalRotYSlider->setLabelMargin(10.0);
+    setLocalRotYSlider->setWidth(compW, 80.0);
+    setLocalRotYSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    setLocalRotZSlider = new ofxDatGuiSlider(setLocalRotZ);
+    setLocalRotZSlider->setLabelMargin(10.0);
+    setLocalRotZSlider->setWidth(compW, 80.0);
+    setLocalRotZSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    setLocalTransXSlider = new ofxDatGuiSlider(setLocalTransX);
+    setLocalTransXSlider->setLabelMargin(10.0);
+    setLocalTransXSlider->setWidth(compW, 80.0);
+    setLocalTransXSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    setLocalTransYSlider = new ofxDatGuiSlider(setLocalTransY);
+    setLocalTransYSlider->setLabelMargin(10.0);
+    setLocalTransYSlider->setWidth(compW, 80.0);
+    setLocalTransYSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    setLocalTransZSlider = new ofxDatGuiSlider(setLocalTransZ);
+    setLocalTransZSlider->setLabelMargin(10.0);
+    setLocalTransZSlider->setWidth(compW, 80.0);
+    setLocalTransZSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    //column 5
+    setObjRotXSlider = new ofxDatGuiSlider(setObjRotX);
+    setObjRotXSlider->setLabelMargin(10.0);
+    setObjRotXSlider->setWidth(compW, 80.0);
+    setObjRotXSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    setObjRotYSlider = new ofxDatGuiSlider(setObjRotY);
+    setObjRotYSlider->setLabelMargin(10.0);
+    setObjRotYSlider->setWidth(compW, 80.0);
+    setObjRotYSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    setObjRotZSlider = new ofxDatGuiSlider(setObjRotZ);
+    setObjRotZSlider->setLabelMargin(10.0);
+    setObjRotZSlider->setWidth(compW, 80.0);
+    setObjRotZSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    localScaleSlider = new ofxDatGuiSlider(localScale);
+    localScaleSlider->setLabelMargin(10.0);
+    localScaleSlider->setWidth(compW, 80.0);
+    localScaleSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
+    
+    globalScaleSlider = new ofxDatGuiSlider(globalScale);
+    globalScaleSlider->setLabelMargin(10.0);
+    globalScaleSlider->setWidth(compW, 80.0);
+    globalScaleSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
 }
 
 //use this if you want the ofxDatGuiButton to behave like a toggle.
@@ -226,6 +337,28 @@ void ofxTLVMMControl::enable(){
     localCopiesSlider->setEnabled(true);
     globalCopiesSlider->setEnabled(true);
     mirrorDistanceSlider->setEnabled(true);
+    
+    //not sure if this is needed
+    setGlobalRotXSlider->setEnabled(true);
+    setGlobalRotYSlider->setEnabled(true);
+    setGlobalRotZSlider->setEnabled(true);
+    setGlobalTransXSlider->setEnabled(true);
+    setGlobalTransYSlider->setEnabled(true);
+    setGlobalTransZSlider->setEnabled(true);
+    
+    //not sure if this is needed
+    setLocalRotXSlider->setEnabled(true);
+    setLocalRotYSlider->setEnabled(true);
+    setLocalRotZSlider->setEnabled(true);
+    setLocalTransXSlider->setEnabled(true);
+    setLocalTransYSlider->setEnabled(true);
+    setLocalTransZSlider->setEnabled(true);
+    
+    setObjRotXSlider->setEnabled(true);
+    setObjRotYSlider->setEnabled(true);
+    setObjRotZSlider->setEnabled(true);
+    localScaleSlider->setEnabled(true);
+    globalScaleSlider->setEnabled(true);
 }
 
 void ofxTLVMMControl::disable(){
@@ -242,6 +375,27 @@ void ofxTLVMMControl::disable(){
     localCopiesSlider->setEnabled(false);
     globalCopiesSlider->setEnabled(false);
     mirrorDistanceSlider->setEnabled(false);
+    
+    setGlobalRotXSlider->setEnabled(false);
+    setGlobalRotYSlider->setEnabled(false);
+    setGlobalRotZSlider->setEnabled(false);
+    setGlobalTransXSlider->setEnabled(false);
+    setGlobalTransYSlider->setEnabled(false);
+    setGlobalTransZSlider->setEnabled(false);
+    
+    //not sure if this is needed
+    setLocalRotXSlider->setEnabled(false);
+    setLocalRotYSlider->setEnabled(false);
+    setLocalRotZSlider->setEnabled(false);
+    setLocalTransXSlider->setEnabled(false);
+    setLocalTransYSlider->setEnabled(false);
+    setLocalTransZSlider->setEnabled(false);
+    
+    setObjRotXSlider->setEnabled(false);
+    setObjRotYSlider->setEnabled(false);
+    setObjRotZSlider->setEnabled(false);
+    localScaleSlider->setEnabled(false);
+    globalScaleSlider->setEnabled(false);
 }
 
 //--------------------------------------------------------------
@@ -259,6 +413,29 @@ void ofxTLVMMControl::trackGuiDelete(){
     delete mirrorXToggle;
     delete mirrorYToggle;
     delete mirrorZToggle;
+    
+    delete setGlobalRotXSlider;
+    delete setGlobalRotYSlider;
+    delete setGlobalRotZSlider;
+    
+    delete setGlobalTransXSlider;
+    delete setGlobalTransYSlider;
+    delete setGlobalTransZSlider;
+    
+    delete setLocalRotXSlider;
+    delete setLocalRotYSlider;
+    delete setLocalRotZSlider;
+    
+    delete setLocalTransXSlider;
+    delete setLocalTransYSlider;
+    delete setLocalTransZSlider;
+    
+    delete setObjRotXSlider;
+    delete setObjRotYSlider;
+    delete setObjRotZSlider;
+    delete localScaleSlider;
+    delete globalScaleSlider;
+    
     
     //  REMOVE LISTENERS
     //ofRemoveListener(trackGui->newGUIEvent, this, &ofxTLVMMControl::trackGuiEvent);
@@ -280,56 +457,132 @@ void ofxTLVMMControl::update(){
     //    " getBottom - getTop = " << bounds.getBottom()-bounds.getTop() <<
     //    endl;
     
-    //FINAL PLACEMENT CODE
-    //column 1
-    OSCsetMatCapSlider->setPosition(bounds.getX(), bounds.getY());
-    OSCsetMatCapSlider->setVisible(bounds.getBottom()-bounds.getTop() < OSCsetMatCapSlider->getHeight() ? false : true);
-    OSCsetMatCapSlider->update(guiAcceptEvents);
-    
-    OSCsetTrackSlider->setPosition(bounds.getX(), bounds.getY()+compH);
-    OSCsetTrackSlider->setVisible(bounds.getBottom()-bounds.getTop() < (OSCsetTrackSlider->getHeight()+compH) ? false : true);
-    OSCsetTrackSlider->update(guiAcceptEvents);
-    
-    localSlicesSlider->setPosition(bounds.getX(), bounds.getY()+(compH*2));
-    localSlicesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localSlicesSlider->getHeight()+(compH*2)) ? false : true);
-    localSlicesSlider->update(guiAcceptEvents);
-    
-    localCopiesSlider->setPosition(bounds.getX(), bounds.getY()+(compH*3));
-    localCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localCopiesSlider->getHeight()+(compH*3)) ? false : true);
-    localCopiesSlider->update(guiAcceptEvents);
-    
-    globalCopiesSlider->setPosition(bounds.getX(), bounds.getY()+(compH*4));
-    globalCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (globalCopiesSlider->getHeight()+(compH*4)) ? false : true);
-    globalCopiesSlider->update(guiAcceptEvents);
-    
-    mirrorDistanceSlider->setPosition(bounds.getX(), bounds.getY()+(compH*5));
-    mirrorDistanceSlider->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorDistanceSlider->getHeight()+(compH*5)) ? false : true);
-    mirrorDistanceSlider->update(guiAcceptEvents);
     
     //column 2
-    playNoteOffToggle->setPosition(bounds.getX()+compW, bounds.getY());
+    playNoteOffToggle->setPosition(bounds.getX(), bounds.getY());
     playNoteOffToggle->setVisible(bounds.getBottom()-bounds.getTop() < playNoteOffToggle->getHeight() ? false : true);
     playNoteOffToggle->update(guiAcceptEvents);
     
-    playAllToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*1));
+    playAllToggle->setPosition(bounds.getX(), bounds.getY()+(compH*1));
     playAllToggle->setVisible(bounds.getBottom()-bounds.getTop() < (playAllToggle->getHeight()+(compH*1)) ? false : true);
     playAllToggle->update(guiAcceptEvents);
     
-    mirrorToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*2));
+    mirrorToggle->setPosition(bounds.getX(), bounds.getY()+(compH*2));
     mirrorToggle->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorToggle->getHeight()+(compH*2)) ? false : true);
     mirrorToggle->update(guiAcceptEvents);
     
-    mirrorXToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*3));
+    mirrorXToggle->setPosition(bounds.getX(), bounds.getY()+(compH*3));
     mirrorXToggle->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorXToggle->getHeight()+(compH*3)) ? false : true);
     mirrorXToggle->update(guiAcceptEvents);
     
-    mirrorYToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*4));
+    mirrorYToggle->setPosition(bounds.getX(), bounds.getY()+(compH*4));
     mirrorYToggle->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorYToggle->getHeight()+(compH*4)) ? false : true);
     mirrorYToggle->update(guiAcceptEvents);
     
-    mirrorZToggle->setPosition(bounds.getX()+compW, bounds.getY()+(compH*5));
+    mirrorZToggle->setPosition(bounds.getX(), bounds.getY()+(compH*5));
     mirrorZToggle->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorZToggle->getHeight()+(compH*5)) ? false : true);
     mirrorZToggle->update(guiAcceptEvents);
+    
+    
+    //FINAL PLACEMENT CODE
+    //column 1
+    OSCsetMatCapSlider->setPosition(bounds.getX()+tglW, bounds.getY());
+    OSCsetMatCapSlider->setVisible(bounds.getBottom()-bounds.getTop() < OSCsetMatCapSlider->getHeight() ? false : true);
+    OSCsetMatCapSlider->update(guiAcceptEvents);
+    
+    OSCsetTrackSlider->setPosition(bounds.getX()+tglW, bounds.getY()+compH);
+    OSCsetTrackSlider->setVisible(bounds.getBottom()-bounds.getTop() < (OSCsetTrackSlider->getHeight()+compH) ? false : true);
+    OSCsetTrackSlider->update(guiAcceptEvents);
+    
+    localSlicesSlider->setPosition(bounds.getX()+tglW, bounds.getY()+(compH*2));
+    localSlicesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localSlicesSlider->getHeight()+(compH*2)) ? false : true);
+    localSlicesSlider->update(guiAcceptEvents);
+    
+    localCopiesSlider->setPosition(bounds.getX()+tglW, bounds.getY()+(compH*3));
+    localCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (localCopiesSlider->getHeight()+(compH*3)) ? false : true);
+    localCopiesSlider->update(guiAcceptEvents);
+    
+    globalCopiesSlider->setPosition(bounds.getX()+tglW, bounds.getY()+(compH*4));
+    globalCopiesSlider->setVisible(bounds.getBottom()-bounds.getTop() < (globalCopiesSlider->getHeight()+(compH*4)) ? false : true);
+    globalCopiesSlider->update(guiAcceptEvents);
+    
+    mirrorDistanceSlider->setPosition(bounds.getX()+tglW, bounds.getY()+(compH*5));
+    mirrorDistanceSlider->setVisible(bounds.getBottom()-bounds.getTop() < (mirrorDistanceSlider->getHeight()+(compH*5)) ? false : true);
+    mirrorDistanceSlider->update(guiAcceptEvents);
+    
+
+    //column 3
+    setGlobalRotXSlider->setPosition(bounds.getX()+tglW+(compW*1), bounds.getY());
+    setGlobalRotXSlider->setVisible(bounds.getBottom()-bounds.getTop() < setGlobalRotXSlider->getHeight() ? false : true);
+    setGlobalRotXSlider->update(guiAcceptEvents);
+    
+    setGlobalRotYSlider->setPosition(bounds.getX()+tglW+(compW*1), bounds.getY()+(compH*1));
+    setGlobalRotYSlider->setVisible(bounds.getBottom()-bounds.getTop() < setGlobalRotYSlider->getHeight()+(compH*1) ? false : true);
+    setGlobalRotYSlider->update(guiAcceptEvents);
+    
+    setGlobalRotZSlider->setPosition(bounds.getX()+tglW+(compW*1), bounds.getY()+(compH*2));
+    setGlobalRotZSlider->setVisible(bounds.getBottom()-bounds.getTop() < setGlobalRotZSlider->getHeight()+(compH*2) ? false : true);
+    setGlobalRotZSlider->update(guiAcceptEvents);
+    
+    setGlobalTransXSlider->setPosition(bounds.getX()+tglW+(compW*1), bounds.getY()+(compH*3));
+    setGlobalTransXSlider->setVisible(bounds.getBottom()-bounds.getTop() < setGlobalTransXSlider->getHeight()+(compH*3) ? false : true);
+    setGlobalTransXSlider->update(guiAcceptEvents);
+    
+    setGlobalTransYSlider->setPosition(bounds.getX()+tglW+(compW*1), bounds.getY()+(compH*4));
+    setGlobalTransYSlider->setVisible(bounds.getBottom()-bounds.getTop() < setGlobalTransYSlider->getHeight()+(compH*4) ? false : true);
+    setGlobalTransYSlider->update(guiAcceptEvents);
+    
+    setGlobalTransZSlider->setPosition(bounds.getX()+tglW+(compW*1), bounds.getY()+(compH*5));
+    setGlobalTransZSlider->setVisible(bounds.getBottom()-bounds.getTop() < setGlobalTransZSlider->getHeight()+(compH*5) ? false : true);
+    setGlobalTransZSlider->update(guiAcceptEvents);
+ 
+    
+    //column 4
+    setLocalRotXSlider->setPosition(bounds.getX()+tglW+(compW*2), bounds.getY());
+    setLocalRotXSlider->setVisible(bounds.getBottom()-bounds.getTop() < setLocalRotXSlider->getHeight() ? false : true);
+    setLocalRotXSlider->update(guiAcceptEvents);
+    
+    setLocalRotYSlider->setPosition(bounds.getX()+tglW+(compW*2), bounds.getY()+(compH*1));
+    setLocalRotYSlider->setVisible(bounds.getBottom()-bounds.getTop() < setLocalRotYSlider->getHeight()+(compH*1) ? false : true);
+    setLocalRotYSlider->update(guiAcceptEvents);
+    
+    setLocalRotZSlider->setPosition(bounds.getX()+tglW+(compW*2), bounds.getY()+(compH*2));
+    setLocalRotZSlider->setVisible(bounds.getBottom()-bounds.getTop() < setLocalRotZSlider->getHeight()+(compH*2) ? false : true);
+    setLocalRotZSlider->update(guiAcceptEvents);
+    
+    setLocalTransXSlider->setPosition(bounds.getX()+tglW+(compW*2), bounds.getY()+(compH*3));
+    setLocalTransXSlider->setVisible(bounds.getBottom()-bounds.getTop() < setLocalTransXSlider->getHeight()+(compH*3) ? false : true);
+    setLocalTransXSlider->update(guiAcceptEvents);
+    
+    setLocalTransYSlider->setPosition(bounds.getX()+tglW+(compW*2), bounds.getY()+(compH*4));
+    setLocalTransYSlider->setVisible(bounds.getBottom()-bounds.getTop() < setLocalTransYSlider->getHeight()+(compH*4) ? false : true);
+    setLocalTransYSlider->update(guiAcceptEvents);
+    
+    setLocalTransZSlider->setPosition(bounds.getX()+tglW+(compW*2), bounds.getY()+(compH*5));
+    setLocalTransZSlider->setVisible(bounds.getBottom()-bounds.getTop() < setLocalTransZSlider->getHeight()+(compH*5) ? false : true);
+    setLocalTransZSlider->update(guiAcceptEvents);
+    
+    //column 5
+    setObjRotXSlider->setPosition(bounds.getX()+tglW+(compW*3), bounds.getY());
+    setObjRotXSlider->setVisible(bounds.getBottom()-bounds.getTop() < setObjRotXSlider->getHeight() ? false : true);
+    setObjRotXSlider->update(guiAcceptEvents);
+    
+    setObjRotYSlider->setPosition(bounds.getX()+tglW+(compW*3), bounds.getY()+(compH*1));
+    setObjRotYSlider->setVisible(bounds.getBottom()-bounds.getTop() < setObjRotYSlider->getHeight()+(compH*1) ? false : true);
+    setObjRotYSlider->update(guiAcceptEvents);
+    
+    setObjRotZSlider->setPosition(bounds.getX()+tglW+(compW*3), bounds.getY()+(compH*2));
+    setObjRotZSlider->setVisible(bounds.getBottom()-bounds.getTop() < setObjRotZSlider->getHeight()+(compH*2) ? false : true);
+    setObjRotZSlider->update(guiAcceptEvents);
+    
+    localScaleSlider->setPosition(bounds.getX()+tglW+(compW*3), bounds.getY()+(compH*3));
+    localScaleSlider->setVisible(bounds.getBottom()-bounds.getTop() < localScaleSlider->getHeight()+(compH*3) ? false : true);
+    localScaleSlider->update(guiAcceptEvents);
+    
+    globalScaleSlider->setPosition(bounds.getX()+tglW+(compW*3), bounds.getY()+(compH*4));
+    globalScaleSlider->setVisible(bounds.getBottom()-bounds.getTop() < globalScaleSlider->getHeight()+(compH*4) ? false : true);
+    globalScaleSlider->update(guiAcceptEvents);
+    
 }
 
 //draw your track contents. use ofRectangle bounds to know where to draw
@@ -351,6 +604,25 @@ void ofxTLVMMControl::draw(){
     mirrorYToggle->draw();
     mirrorZToggle->draw();
     
+    setGlobalRotXSlider->draw();
+    setGlobalRotYSlider->draw();
+    setGlobalRotZSlider->draw();
+    setGlobalTransXSlider->draw();
+    setGlobalTransYSlider->draw();
+    setGlobalTransZSlider->draw();
+    
+    setLocalRotXSlider->draw();
+    setLocalRotYSlider->draw();
+    setLocalRotZSlider->draw();
+    setLocalTransXSlider->draw();
+    setLocalTransYSlider->draw();
+    setLocalTransZSlider->draw();
+    
+    setObjRotXSlider->draw();
+    setObjRotYSlider->draw();
+    setObjRotZSlider->draw();
+    localScaleSlider->draw();
+    globalScaleSlider->draw();
     
 	//this is just a simple example (not working for me)
 	/* SAMPLE CODE
@@ -483,18 +755,41 @@ void ofxTLVMMControl::save(){
     //write all the VMM settings.
     savedButtonsTrack.addTag("VMM");
     savedButtonsTrack.pushTag("VMM");
-    savedButtonsTrack.addValue(OSCsetMatCap.getName(), OSCsetMatCap.get());
-    savedButtonsTrack.addValue(OSCsetTrack.getName(), OSCsetTrack.get());
-    savedButtonsTrack.addValue(localSlices.getName(), localSlices.get());
-    savedButtonsTrack.addValue(localCopies.getName(), localCopies.get());
-    savedButtonsTrack.addValue(globalCopies.getName(), globalCopies.get());
-    savedButtonsTrack.addValue(mirrorDistance.getName(), mirrorDistance.get());
+    
     savedButtonsTrack.addValue("playNoteOff", playNoteOff);
     savedButtonsTrack.addValue("playAll", playAll);
     savedButtonsTrack.addValue("mirror", mirror);
     savedButtonsTrack.addValue("mirrorX", mirrorX);
     savedButtonsTrack.addValue("mirrorY", mirrorY);
     savedButtonsTrack.addValue("mirrorZ", mirrorZ);
+    
+    savedButtonsTrack.addValue(OSCsetMatCap.getName(), OSCsetMatCap.get());
+    savedButtonsTrack.addValue(OSCsetTrack.getName(), OSCsetTrack.get());
+    savedButtonsTrack.addValue(localSlices.getName(), localSlices.get());
+    savedButtonsTrack.addValue(localCopies.getName(), localCopies.get());
+    savedButtonsTrack.addValue(globalCopies.getName(), globalCopies.get());
+    savedButtonsTrack.addValue(mirrorDistance.getName(), mirrorDistance.get());
+    
+    savedButtonsTrack.addValue(setGlobalRotX.getName(), setGlobalRotX.get());
+    savedButtonsTrack.addValue(setGlobalRotY.getName(), setGlobalRotY.get());
+    savedButtonsTrack.addValue(setGlobalRotZ.getName(), setGlobalRotZ.get());
+    savedButtonsTrack.addValue(setGlobalTransX.getName(), setGlobalTransX.get());
+    savedButtonsTrack.addValue(setGlobalTransY.getName(), setGlobalTransY.get());
+    savedButtonsTrack.addValue(setGlobalTransZ.getName(), setGlobalTransZ.get());
+    
+    savedButtonsTrack.addValue(setLocalRotX.getName(), setLocalRotX.get());
+    savedButtonsTrack.addValue(setLocalRotY.getName(), setLocalRotY.get());
+    savedButtonsTrack.addValue(setLocalRotZ.getName(), setLocalRotZ.get());
+    savedButtonsTrack.addValue(setLocalTransX.getName(), setLocalTransX.get());
+    savedButtonsTrack.addValue(setLocalTransY.getName(), setLocalTransY.get());
+    savedButtonsTrack.addValue(setLocalTransZ.getName(), setLocalTransZ.get());
+
+    savedButtonsTrack.addValue(setObjRotX.getName(), setObjRotX.get());
+    savedButtonsTrack.addValue(setObjRotY.getName(), setObjRotY.get());
+    savedButtonsTrack.addValue(setObjRotZ.getName(), setObjRotZ.get());
+    savedButtonsTrack.addValue(localScale.getName(), localScale.get());
+    savedButtonsTrack.addValue(globalScale.getName(), globalScale.get());
+    
     
     savedButtonsTrack.popTag();
     
@@ -518,30 +813,8 @@ void ofxTLVMMControl::load(){
     if( savedVMMSettings.loadFile(savedClipSettingsPath) ){
         ofLogVerbose("LOAD") << "ofxTLVMMControl::load() - Loading VMM.xml " << savedClipSettingsPath;
         
-        //update the params
-        int VMM_OSCsetMatCap = savedVMMSettings.getValue("VMM:OSCsetMatCap", 0);
-        sendOSC("OSCsetMatCap", VMM_OSCsetMatCap);
-        OSCsetMatCap.set(VMM_OSCsetMatCap);
-        
-        int VMM_OSCsetTrack = savedVMMSettings.getValue("VMM:OSCsetTrack", 0);
-        //sendOSC("OSCsetTrack", VMM_OSCsetTrack);
-        OSCsetTrack.set(VMM_OSCsetTrack);
-        
-        int VMM_localSlices = savedVMMSettings.getValue("VMM:localSlices", 0);
-        sendOSC("localSlices", VMM_localSlices);
-        localSlices.set(VMM_localSlices);
-        
-        int VMM_localCopies = savedVMMSettings.getValue("VMM:localCopies", 0);
-        sendOSC("localCopies", VMM_localCopies);
-        localCopies.set(VMM_localCopies);
-        
-        int VMM_globalCopies = savedVMMSettings.getValue("VMM:globalCopies", 0);
-        sendOSC("globalCopies", VMM_globalCopies);
-        globalCopies.set(VMM_globalCopies);
-        
-        int VMM_mirrorDistance = savedVMMSettings.getValue("VMM:mirrorDistance", 0);
-        sendOSC("mirrorDistance", VMM_mirrorDistance);
-        mirrorDistance.set(VMM_mirrorDistance);
+        //send clear.
+        sendOSC("clear", 1.0);
         
         bool VMM_playNoteOff = savedVMMSettings.getValue("VMM:playNoteOff", 0);
         sendOSC("playNoteOff", VMM_playNoteOff);
@@ -572,6 +845,100 @@ void ofxTLVMMControl::load(){
         sendOSC("mirrorZ", VMM_mirrorZ);
         mirrorZ = VMM_mirrorZ;
         mirrorZToggle->setEnabled(mirrorZ);
+        
+        
+        //update the params
+        int VMM_OSCsetMatCap = savedVMMSettings.getValue("VMM:OSCsetMatCap", 0);
+        sendOSC("OSCsetMatCap", VMM_OSCsetMatCap);
+        OSCsetMatCap.set(VMM_OSCsetMatCap);
+        
+        int VMM_OSCsetTrack = savedVMMSettings.getValue("VMM:OSCsetTrack", 0);
+        //sendOSC("OSCsetTrack", VMM_OSCsetTrack);
+        OSCsetTrack.set(VMM_OSCsetTrack);
+        
+        int VMM_localSlices = savedVMMSettings.getValue("VMM:localSlices", 0);
+        sendOSC("localSlices", VMM_localSlices);
+        localSlices.set(VMM_localSlices);
+        
+        int VMM_localCopies = savedVMMSettings.getValue("VMM:localCopies", 0);
+        sendOSC("localCopies", VMM_localCopies);
+        localCopies.set(VMM_localCopies);
+        
+        int VMM_globalCopies = savedVMMSettings.getValue("VMM:globalCopies", 0);
+        sendOSC("globalCopies", VMM_globalCopies);
+        globalCopies.set(VMM_globalCopies);
+        
+        int VMM_mirrorDistance = savedVMMSettings.getValue("VMM:mirrorDistance", 0);
+        sendOSC("mirrorDistance", VMM_mirrorDistance);
+        mirrorDistance.set(VMM_mirrorDistance);
+        
+        int VMM_setGlobalRotX = savedVMMSettings.getValue("VMM:setGlobalRotX", 0);
+        sendOSC("setGlobalRotX", VMM_setGlobalRotX);
+        setGlobalRotX.set(VMM_setGlobalRotX);
+        
+        int VMM_setGlobalRotY = savedVMMSettings.getValue("VMM:setGlobalRotY", 0);
+        sendOSC("setGlobalRotY", VMM_setGlobalRotY);
+        setGlobalRotY.set(VMM_setGlobalRotY);
+        
+        int VMM_setGlobalRotZ = savedVMMSettings.getValue("VMM:setGlobalRotZ", 0);
+        sendOSC("setGlobalRotZ", VMM_setGlobalRotZ);
+        setGlobalRotZ.set(VMM_setGlobalRotZ);
+        
+        int VMM_setGlobalTransX = savedVMMSettings.getValue("VMM:setGlobalTransX", 0);
+        sendOSC("setGlobalTransX", VMM_setGlobalTransX);
+        setGlobalTransX.set(VMM_setGlobalTransX);
+        
+        int VMM_setGlobalTransY = savedVMMSettings.getValue("VMM:setGlobalTransY", 0);
+        sendOSC("setGlobalTransY", VMM_setGlobalTransY);
+        setGlobalTransY.set(VMM_setGlobalTransY);
+        
+        int VMM_setGlobalTransZ = savedVMMSettings.getValue("VMM:setGlobalTransZ", 0);
+        sendOSC("setGlobalTransZ", VMM_setGlobalTransZ);
+        setGlobalTransZ.set(VMM_setGlobalTransZ);
+        
+        int VMM_setLocalRotX = savedVMMSettings.getValue("VMM:setLocalRotX", 0);
+        sendOSC("setLocalRotX", VMM_setLocalRotX);
+        setLocalRotX.set(VMM_setLocalRotX);
+        
+        int VMM_setLocalRotY = savedVMMSettings.getValue("VMM:setLocalRotY", 0);
+        sendOSC("setLocalRotY", VMM_setLocalRotY);
+        setLocalRotY.set(VMM_setLocalRotY);
+        
+        int VMM_setLocalRotZ = savedVMMSettings.getValue("VMM:setLocalRotZ", 0);
+        sendOSC("setLocalRotZ", VMM_setLocalRotZ);
+        setLocalRotZ.set(VMM_setLocalRotZ);
+        
+        int VMM_setLocalTransX = savedVMMSettings.getValue("VMM:setLocalTransX", 0);
+        sendOSC("setLocalTransX", VMM_setLocalTransX);
+        setLocalTransX.set(VMM_setLocalTransX);
+        
+        int VMM_setLocalTransY = savedVMMSettings.getValue("VMM:setLocalTransY", 0);
+        sendOSC("setLocalTransY", VMM_setLocalTransY);
+        setLocalTransY.set(VMM_setLocalTransY);
+        
+        int VMM_setLocalTransZ = savedVMMSettings.getValue("VMM:setLocalTransZ", 0);
+        sendOSC("setLocalTransZ", VMM_setLocalTransZ);
+        setLocalTransZ.set(VMM_setLocalTransZ);
+        
+        int VMM_setObjRotX = savedVMMSettings.getValue("VMM:setObjRotX", 0);
+        sendOSC("setObjRotX", VMM_setObjRotX);
+        setObjRotX.set(VMM_setObjRotX);
+        
+        int VMM_setObjRotY = savedVMMSettings.getValue("VMM:setObjRotY", 0);
+        sendOSC("setObjRotY", VMM_setObjRotY);
+        setObjRotY.set(VMM_setObjRotY);
+        
+        int VMM_setObjRotZ = savedVMMSettings.getValue("VMM:setObjRotZ", 0);
+        sendOSC("setObjRotZ", VMM_setObjRotZ);
+        setObjRotZ.set(VMM_setObjRotZ);
+        
+        int VMM_localScale = savedVMMSettings.getValue("VMM:localScale", 0);
+        sendOSC("localScale", VMM_localScale);
+        localScale.set(VMM_localScale);
+        
+        int VMM_globalScale = savedVMMSettings.getValue("VMM:globalScale", 0);
+        sendOSC("globalScale", VMM_globalScale);
+        globalScale.set(VMM_globalScale);
         
     }else{
         ofLogError("LOAD") <<  "ofxTLVMMControl::load() - unable to load: " << savedClipSettingsPath ;
