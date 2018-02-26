@@ -822,130 +822,130 @@ void ofxTLVMMControl::load(){
         ofLogVerbose("LOAD") << "ofxTLVMMControl::load() - Loading VMM.xml " << savedClipSettingsPath;
         
         //send clear.
-        sendOSC("clear", 1.0);
+        //sendOSC("clear", 1.0);
         
         bool VMM_playNoteOff = savedVMMSettings.getValue("VMM:playNoteOff", 0);
-        sendOSC("playNoteOff", VMM_playNoteOff);
+        //sendOSC("playNoteOff", VMM_playNoteOff);
         playNoteOff = VMM_playNoteOff;
         playNoteOffToggle->setEnabled(playNoteOff);
         
         bool VMM_playAll = savedVMMSettings.getValue("VMM:playAll", 0);
-        sendOSC("playAll", VMM_playAll);
+        //sendOSC("playAll", VMM_playAll);
         playAll = VMM_playAll;
         playAllToggle->setEnabled(playAll);
         
         bool VMM_mirror = savedVMMSettings.getValue("VMM:mirror", 0);
-        sendOSC("mirror", VMM_mirror);
+        //sendOSC("mirror", VMM_mirror);
         mirror = VMM_mirror;
         mirrorToggle->setEnabled(mirror);
         
         bool VMM_mirrorX = savedVMMSettings.getValue("VMM:mirrorX", 0);
-        sendOSC("mirrorX", VMM_mirrorX);
+        //sendOSC("mirrorX", VMM_mirrorX);
         mirrorX = VMM_mirrorX;
         mirrorXToggle->setEnabled(mirrorX);
         
         bool VMM_mirrorY = savedVMMSettings.getValue("VMM:mirrorY", 0);
-        sendOSC("mirrorY", VMM_mirrorY);
+        //sendOSC("mirrorY", VMM_mirrorY);
         mirrorY = VMM_mirrorY;
         mirrorYToggle->setEnabled(mirrorY);
         
         bool VMM_mirrorZ = savedVMMSettings.getValue("VMM:mirrorZ", 0);
-        sendOSC("mirrorZ", VMM_mirrorZ);
+        //sendOSC("mirrorZ", VMM_mirrorZ);
         mirrorZ = VMM_mirrorZ;
         mirrorZToggle->setEnabled(mirrorZ);
         
         
         //update the params
         int VMM_OSCsetMatCap = savedVMMSettings.getValue("VMM:OSCsetMatCap", 0);
-        sendOSC("OSCsetMatCap", VMM_OSCsetMatCap);
+        //sendOSC("OSCsetMatCap", VMM_OSCsetMatCap);
         OSCsetMatCap.set(VMM_OSCsetMatCap);
         
         int VMM_OSCsetTrack = savedVMMSettings.getValue("VMM:OSCsetTrack", 0);
-        //sendOSC("OSCsetTrack", VMM_OSCsetTrack);
+        ////sendOSC("OSCsetTrack", VMM_OSCsetTrack);
         OSCsetTrack.set(VMM_OSCsetTrack);
         
         int VMM_localSlices = savedVMMSettings.getValue("VMM:localSlices", 0);
-        sendOSC("localSlices", VMM_localSlices);
+        //sendOSC("localSlices", VMM_localSlices);
         localSlices.set(VMM_localSlices);
         
         int VMM_localCopies = savedVMMSettings.getValue("VMM:localCopies", 0);
-        sendOSC("localCopies", VMM_localCopies);
+        //sendOSC("localCopies", VMM_localCopies);
         localCopies.set(VMM_localCopies);
         
         int VMM_globalCopies = savedVMMSettings.getValue("VMM:globalCopies", 0);
-        sendOSC("globalCopies", VMM_globalCopies);
+        //sendOSC("globalCopies", VMM_globalCopies);
         globalCopies.set(VMM_globalCopies);
         
         int VMM_mirrorDistance = savedVMMSettings.getValue("VMM:mirrorDistance", 0);
-        sendOSC("mirrorDistance", VMM_mirrorDistance);
+        //sendOSC("mirrorDistance", VMM_mirrorDistance);
         mirrorDistance.set(VMM_mirrorDistance);
         
         int VMM_setGlobalRotX = savedVMMSettings.getValue("VMM:setGlobalRotX", 0);
-        sendOSC("setGlobalRotX", VMM_setGlobalRotX);
+        //sendOSC("setGlobalRotX", VMM_setGlobalRotX);
         setGlobalRotX.set(VMM_setGlobalRotX);
         
         int VMM_setGlobalRotY = savedVMMSettings.getValue("VMM:setGlobalRotY", 0);
-        sendOSC("setGlobalRotY", VMM_setGlobalRotY);
+        //sendOSC("setGlobalRotY", VMM_setGlobalRotY);
         setGlobalRotY.set(VMM_setGlobalRotY);
         
         int VMM_setGlobalRotZ = savedVMMSettings.getValue("VMM:setGlobalRotZ", 0);
-        sendOSC("setGlobalRotZ", VMM_setGlobalRotZ);
+        //sendOSC("setGlobalRotZ", VMM_setGlobalRotZ);
         setGlobalRotZ.set(VMM_setGlobalRotZ);
         
         int VMM_setGlobalTransX = savedVMMSettings.getValue("VMM:setGlobalTransX", 0);
-        sendOSC("setGlobalTransX", VMM_setGlobalTransX);
+        //sendOSC("setGlobalTransX", VMM_setGlobalTransX);
         setGlobalTransX.set(VMM_setGlobalTransX);
         
         int VMM_setGlobalTransY = savedVMMSettings.getValue("VMM:setGlobalTransY", 0);
-        sendOSC("setGlobalTransY", VMM_setGlobalTransY);
+        //sendOSC("setGlobalTransY", VMM_setGlobalTransY);
         setGlobalTransY.set(VMM_setGlobalTransY);
         
         int VMM_setGlobalTransZ = savedVMMSettings.getValue("VMM:setGlobalTransZ", 0);
-        sendOSC("setGlobalTransZ", VMM_setGlobalTransZ);
+        //sendOSC("setGlobalTransZ", VMM_setGlobalTransZ);
         setGlobalTransZ.set(VMM_setGlobalTransZ);
         
         int VMM_setLocalRotX = savedVMMSettings.getValue("VMM:setLocalRotX", 0);
-        sendOSC("setLocalRotX", VMM_setLocalRotX);
+        //sendOSC("setLocalRotX", VMM_setLocalRotX);
         setLocalRotX.set(VMM_setLocalRotX);
         
         int VMM_setLocalRotY = savedVMMSettings.getValue("VMM:setLocalRotY", 0);
-        sendOSC("setLocalRotY", VMM_setLocalRotY);
+        //sendOSC("setLocalRotY", VMM_setLocalRotY);
         setLocalRotY.set(VMM_setLocalRotY);
         
         int VMM_setLocalRotZ = savedVMMSettings.getValue("VMM:setLocalRotZ", 0);
-        sendOSC("setLocalRotZ", VMM_setLocalRotZ);
+        //sendOSC("setLocalRotZ", VMM_setLocalRotZ);
         setLocalRotZ.set(VMM_setLocalRotZ);
         
         int VMM_setLocalTransX = savedVMMSettings.getValue("VMM:setLocalTransX", 0);
-        sendOSC("setLocalTransX", VMM_setLocalTransX);
+        //sendOSC("setLocalTransX", VMM_setLocalTransX);
         setLocalTransX.set(VMM_setLocalTransX);
         
         int VMM_setLocalTransY = savedVMMSettings.getValue("VMM:setLocalTransY", 0);
-        sendOSC("setLocalTransY", VMM_setLocalTransY);
+        //sendOSC("setLocalTransY", VMM_setLocalTransY);
         setLocalTransY.set(VMM_setLocalTransY);
         
         int VMM_setLocalTransZ = savedVMMSettings.getValue("VMM:setLocalTransZ", 0);
-        sendOSC("setLocalTransZ", VMM_setLocalTransZ);
+        //sendOSC("setLocalTransZ", VMM_setLocalTransZ);
         setLocalTransZ.set(VMM_setLocalTransZ);
         
         int VMM_setObjRotX = savedVMMSettings.getValue("VMM:setObjRotX", 0);
-        sendOSC("setObjRotX", VMM_setObjRotX);
+        //sendOSC("setObjRotX", VMM_setObjRotX);
         setObjRotX.set(VMM_setObjRotX);
         
         int VMM_setObjRotY = savedVMMSettings.getValue("VMM:setObjRotY", 0);
-        sendOSC("setObjRotY", VMM_setObjRotY);
+        //sendOSC("setObjRotY", VMM_setObjRotY);
         setObjRotY.set(VMM_setObjRotY);
         
         int VMM_setObjRotZ = savedVMMSettings.getValue("VMM:setObjRotZ", 0);
-        sendOSC("setObjRotZ", VMM_setObjRotZ);
+        //sendOSC("setObjRotZ", VMM_setObjRotZ);
         setObjRotZ.set(VMM_setObjRotZ);
         
         int VMM_localScale = savedVMMSettings.getValue("VMM:localScale", 0);
-        sendOSC("localScale", VMM_localScale);
+        //sendOSC("localScale", VMM_localScale);
         localScale.set(VMM_localScale);
         
         int VMM_globalScale = savedVMMSettings.getValue("VMM:globalScale", 0);
-        sendOSC("globalScale", VMM_globalScale);
+        //sendOSC("globalScale", VMM_globalScale);
         globalScale.set(VMM_globalScale);
         
     }else{
