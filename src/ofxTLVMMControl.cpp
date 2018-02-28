@@ -39,24 +39,38 @@ ofEvent <VMMOscMessageEvent> VMMOscMessageEvent::events;
 //================================================================================
 ofxTLVMMControl::ofxTLVMMControl(){
     
+    clip = 0;
+    
     //flag to accept gui events.
     guiAcceptEvents = true;
     
+    for(int i=0;i<10;i++){
+        clipParams c;
+        c.playNoteOff = false;
+        c.playAll = false;
+        c.mirror = false;
+        c.mirrorX = false;
+        c.mirrorY = false;
+        c.mirrorZ = false;
+        c.OSCsetMatCap = 1;
+        
+        clips.push_back(c);
+    }
     
     //setup all my params
-    OSCsetMatCap.set("OSCsetMatCap",1,1,42);
+    OSCsetMatCap.set("OSCsetMatCap",clips[clip].OSCsetMatCap,1,42);
     OSCsetTrack.set("OSCsetTrack",1,1,25);
     localSlices.set("localSlices",2,1,4);
     localCopies.set("localCopies",8,1,12);
     globalCopies.set("globalCopies",1,1,12);
     mirrorDistance.set("mirrorDistance",0.0,-50.0,50.0);
     
-    playNoteOff = false;
-    playAll = false;
-    mirror = false;
-    mirrorX = false;
-    mirrorY = false;
-    mirrorZ = false;
+    playNoteOff = clips[clip].playNoteOff;
+    playAll = clips[clip].playAll;
+    mirror = clips[clip].mirror;
+    mirrorX = clips[clip].mirrorX;
+    mirrorY = clips[clip].mirrorY;
+    mirrorZ = clips[clip].mirrorZ;
     
     setGlobalRotX.set("setGlobalRotX",0,-180,180);
     setGlobalRotY.set("setGlobalRotY",0,-180,180);
@@ -79,6 +93,10 @@ ofxTLVMMControl::ofxTLVMMControl(){
     setObjRotZ.set("setObjRotZ",0,-180,180);
     localScale.set("localScale",1,1,10);
     globalScale.set("globalScale",10,1,50);
+    
+    
+    
+    
     
     //create all the gui components.
     setupTrack();
@@ -239,6 +257,36 @@ void ofxTLVMMControl::setupTrack(){
     globalScaleSlider->onSliderEvent(this, &ofxTLVMMControl::trackGuiSliderEvent);
 }
 
+//--------------------------------------------------------------
+void ofxTLVMMControl::setClipParams(int c){
+    
+    clip = c;
+    
+    playNoteOff = clips[clip].playNoteOff;
+    playNoteOffToggle->setEnabled(clips[clip].playNoteOff);
+    
+    playAll = clips[clip].playAll;
+    playAllToggle->setEnabled(clips[clip].playAll);
+    
+    mirror = clips[clip].mirror;
+    mirrorToggle->setEnabled(clips[clip].mirror);
+    
+    mirrorX = clips[clip].mirrorX;
+    mirrorXToggle->setEnabled(clips[clip].mirrorX);
+    
+    mirrorY = clips[clip].mirrorY;
+    mirrorYToggle->setEnabled(clips[clip].mirrorY);
+    
+    mirrorZ = clips[clip].mirrorZ;
+    mirrorZToggle->setEnabled(clips[clip].mirrorZ);
+    
+    OSCsetMatCap.set(clips[clip].OSCsetMatCap);
+    
+    
+    ofLog() << "ofxTLVMMControl::setClipParams(int c) - current clip: " << clip;
+}
+
+
 //use this if you want the ofxDatGuiButton to behave like a toggle.
 //--------------------------------------------------------------
 void ofxTLVMMControl::setButtonToggle(ofxDatGuiButton *_button, bool &val){
@@ -268,37 +316,40 @@ void ofxTLVMMControl::trackGuiButtonEvent(ofxDatGuiButtonEvent e){
         //sendOSC("playNoteOff", playNoteOff);
         
         //ofxDatGuiToggle
-        bool tglStatus = e.target->getEnabled();
-        playNoteOff = tglStatus;
+        bool playNoteOffStatus = e.target->getEnabled();
+        clips[clip].playNoteOff = playNoteOffStatus;
+        playNoteOff = playNoteOffStatus;
         sendOSC("playNoteOff", playNoteOff);
         
     } else if (e.target->is("playAll")){
         
         bool playAllTglStatus = e.target->getEnabled();
+        clips[clip].playAll = playAllTglStatus;
         playAll = playAllTglStatus;
         sendOSC("playAll", playAll);
     } else if (e.target->is("mirror")){
         
         bool mirrorTglStatus = e.target->getEnabled();
+        clips[clip].mirror = mirrorTglStatus;
         mirror = mirrorTglStatus;
         sendOSC("mirror", mirror);
         
     } else if (e.target->is("mirrorX")){
         
         bool mirrorXTglStatus = e.target->getEnabled();
-        mirrorX = mirrorXTglStatus;
+        mirrorX = clips[clip].mirrorX = mirrorXTglStatus;
         sendOSC("mirrorX", mirrorX);
         
     } else if (e.target->is("mirrorY")){
         
         bool mirrorYTglStatus = e.target->getEnabled();
-        mirrorY = mirrorYTglStatus;
+        mirrorY = clips[clip].mirrorY = mirrorYTglStatus;
         sendOSC("mirrorY", mirrorY);
         
     } else if (e.target->is("mirrorZ")){
         
         bool mirrorZTglStatus = e.target->getEnabled();
-        mirrorZ = mirrorZTglStatus;
+        mirrorZ = clips[clip].mirrorZ = mirrorZTglStatus;
         sendOSC("mirrorZ", mirrorZ);
         
     }    //...add more
@@ -314,6 +365,10 @@ void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
         float angle = 360.0/e.target->getValue();
         setLocalRotZ.set(angle);
 
+    } else if (e.target->getName() == "OSCsetMatCap"){
+        
+        clips[clip].OSCsetMatCap = e.target->getValue();
+        OSCsetMatCap.set(clips[clip].OSCsetMatCap);
     }
 
     sendOSC(e.target->getName(), e.target->getValue());
@@ -815,8 +870,15 @@ void ofxTLVMMControl::save(){
 //--------------------------------------------------------------
 void ofxTLVMMControl::load(){
     
+    ofLog() << "ofxTLVMMControl::load() - DO NOTHING!";
+    
+    /*
+    
     string savedClipSettingsPath = getXMLFilePath();
     ofxXmlSettings savedVMMSettings;
+    
+    //TODO - if Loading
+    
     
     if( savedVMMSettings.loadFile(savedClipSettingsPath) ){
         ofLogVerbose("LOAD") << "ofxTLVMMControl::load() - Loading VMM.xml " << savedClipSettingsPath;
@@ -952,6 +1014,8 @@ void ofxTLVMMControl::load(){
         ofLogError("LOAD") <<  "ofxTLVMMControl::load() - unable to load: " << savedClipSettingsPath ;
         return;
     }
+    
+    */
 }
 
 void ofxTLVMMControl::clear(){

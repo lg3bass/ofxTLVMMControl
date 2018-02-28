@@ -75,11 +75,27 @@ public:
 
 class ofxTLVMMControl : public ofxTLTrack {
   public:
+    
+    struct clipParams {
+        bool playNoteOff;
+        bool playAll;
+        bool mirror;
+        bool mirrorX;
+        bool mirrorY;
+        bool mirrorZ;
+        int OSCsetMatCap;
+    };
+    
+    vector<clipParams> clips;
+    
+    
     ofxTLVMMControl();
     
 	virtual ~ofxTLVMMControl();
 
     int track;  //store the current track
+    int page;   //current page
+    int clip;   //current clip
     
     bool playNoteOff;
     ofxDatGuiButton* playNoteOffToggle;
@@ -179,6 +195,7 @@ class ofxTLVMMControl : public ofxTLTrack {
     // ofxDatGui
     void setupTrack();
     
+    void setClipParams(int c);
     void setButtonToggle(ofxDatGuiButton* _button, bool &val);
     
     void trackGuiButtonEvent(ofxDatGuiButtonEvent e);
