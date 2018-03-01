@@ -84,6 +84,33 @@ class ofxTLVMMControl : public ofxTLTrack {
         bool mirrorY;
         bool mirrorZ;
         int OSCsetMatCap;
+        int OSCsetTrack;
+        int localSlices;
+        int localCopies;
+        int globalCopies;
+        float mirrorDistance;
+        int setGlobalRotX;
+        int setGlobalRotY;
+        int setGlobalRotZ;
+        int setGlobalTransX;
+        int setGlobalTransY;
+        int setGlobalTransZ;
+        
+        int setLocalRotX;
+        int setLocalRotY;
+        int setLocalRotZ;
+        int setLocalTransX;
+        int setLocalTransY;
+        int setLocalTransZ;
+        
+        int setObjRotX;
+        int setObjRotY;
+        int setObjRotZ;
+        
+        int localScale;
+        int globalScale;
+        
+        
     };
     
     vector<clipParams> clips;
@@ -196,8 +223,11 @@ class ofxTLVMMControl : public ofxTLTrack {
     void setupTrack();
     
     void setClipParams(int c);
-    void setButtonToggle(ofxDatGuiButton* _button, bool &val);
     
+    void saveClipXML(int c);
+    void loadClipXML(int c);
+    
+    void setButtonToggle(ofxDatGuiButton* _button, bool &val);
     void trackGuiButtonEvent(ofxDatGuiButtonEvent e);
     void trackGuiSliderEvent(ofxDatGuiSliderEvent e);
     

@@ -53,17 +53,42 @@ ofxTLVMMControl::ofxTLVMMControl(){
         c.mirrorY = false;
         c.mirrorZ = false;
         c.OSCsetMatCap = 1;
+        c.OSCsetTrack = 1;
+        c.localSlices = 1;
+        c.localCopies = 12;
+        c.globalCopies = 1;
+        c.mirrorDistance = 0.0;
+        c.setGlobalRotX = 0.0;
+        c.setGlobalRotY = 0.0;
+        c.setGlobalRotZ = 0.0;
+        c.setGlobalTransX = 0.0;
+        c.setGlobalTransY = 0.0;
+        c.setGlobalTransZ = 0.0;
+        
+        c.setLocalRotX = 0.0;
+        c.setLocalRotY = 0.0;
+        c.setLocalRotZ = 0.0;
+        c.setLocalTransX = 0.0;
+        c.setLocalTransY = 0.0;
+        c.setLocalTransZ = 0.0;
+        
+        c.setObjRotX = 0.0;
+        c.setObjRotY = 0.0;
+        c.setObjRotZ = 0.0;
+        
+        c.localScale = 0.0;
+        c.globalScale = 0.0;
         
         clips.push_back(c);
     }
     
     //setup all my params
     OSCsetMatCap.set("OSCsetMatCap",clips[clip].OSCsetMatCap,1,42);
-    OSCsetTrack.set("OSCsetTrack",1,1,25);
-    localSlices.set("localSlices",2,1,4);
-    localCopies.set("localCopies",8,1,12);
-    globalCopies.set("globalCopies",1,1,12);
-    mirrorDistance.set("mirrorDistance",0.0,-50.0,50.0);
+    OSCsetTrack.set("OSCsetTrack",clips[clip].OSCsetTrack,1,25);
+    localSlices.set("localSlices",clips[clip].localSlices,1,4);
+    localCopies.set("localCopies",clips[clip].localCopies,1,12);
+    globalCopies.set("globalCopies",clips[clip].globalCopies,1,12);
+    mirrorDistance.set("mirrorDistance",clips[clip].mirrorDistance,-50.0,50.0);
     
     playNoteOff = clips[clip].playNoteOff;
     playAll = clips[clip].playAll;
@@ -72,30 +97,28 @@ ofxTLVMMControl::ofxTLVMMControl(){
     mirrorY = clips[clip].mirrorY;
     mirrorZ = clips[clip].mirrorZ;
     
-    setGlobalRotX.set("setGlobalRotX",0,-180,180);
-    setGlobalRotY.set("setGlobalRotY",0,-180,180);
-    setGlobalRotZ.set("setGlobalRotZ",0,-180,180);
+    setGlobalRotX.set("setGlobalRotX",clips[clip].setGlobalRotX,-180,180);
+    setGlobalRotY.set("setGlobalRotY",clips[clip].setGlobalRotY,-180,180);
+    setGlobalRotZ.set("setGlobalRotZ",clips[clip].setGlobalRotZ,-180,180);
     
-    setGlobalTransX.set("setGlobalTransX",0,-100,100);
-    setGlobalTransY.set("setGlobalTransY",0,-100,100);
-    setGlobalTransZ.set("setGlobalTransZ",0,-100,100);
+    setGlobalTransX.set("setGlobalTransX",clips[clip].setGlobalTransX,-100,100);
+    setGlobalTransY.set("setGlobalTransY",clips[clip].setGlobalTransY,-100,100);
+    setGlobalTransZ.set("setGlobalTransZ",clips[clip].setGlobalTransZ,-100,100);
 
-    setLocalRotX.set("setLocalRotX",0,-180,180);
-    setLocalRotY.set("setLocalRotY",0,-180,180);
-    setLocalRotZ.set("setLocalRotZ",0,-180,180);
+    setLocalRotX.set("setLocalRotX",clips[clip].setLocalRotX,-180,180);
+    setLocalRotY.set("setLocalRotY",clips[clip].setLocalRotY,-180,180);
+    setLocalRotZ.set("setLocalRotZ",clips[clip].setLocalRotZ,-180,180);
     
-    setLocalTransX.set("setLocalTransX",0,-100,100);
-    setLocalTransY.set("setLocalTransY",0,-100,100);
-    setLocalTransZ.set("setLocalTransZ",0,-100,100);
+    setLocalTransX.set("setLocalTransX",clips[clip].setLocalTransX,-100,100);
+    setLocalTransY.set("setLocalTransY",clips[clip].setLocalTransY,-100,100);
+    setLocalTransZ.set("setLocalTransZ",clips[clip].setLocalTransZ,-100,100);
     
-    setObjRotX.set("setObjRotX",0,-180,180);
-    setObjRotY.set("setObjRotY",0,-180,180);
-    setObjRotZ.set("setObjRotZ",0,-180,180);
-    localScale.set("localScale",1,1,10);
-    globalScale.set("globalScale",10,1,50);
+    setObjRotX.set("setObjRotX",clips[clip].setObjRotX,-180,180);
+    setObjRotY.set("setObjRotY",clips[clip].setObjRotY,-180,180);
+    setObjRotZ.set("setObjRotZ",clips[clip].setObjRotZ,-180,180);
     
-    
-    
+    localScale.set("localScale",clips[clip].localScale,1,10);
+    globalScale.set("globalScale",clips[clip].globalScale,1,50);
     
     
     //create all the gui components.
@@ -281,9 +304,206 @@ void ofxTLVMMControl::setClipParams(int c){
     mirrorZToggle->setEnabled(clips[clip].mirrorZ);
     
     OSCsetMatCap.set(clips[clip].OSCsetMatCap);
+    OSCsetTrack.set(clips[clip].OSCsetTrack);
+    localScale.set(clips[clip].localScale);
+    localCopies.set(clips[clip].localCopies);
+    globalCopies.set(clips[clip].globalCopies);
+    mirrorDistance.set(clips[clip].mirrorDistance);
+    setGlobalRotX.set(clips[clip].setGlobalRotX);
+    setGlobalRotY.set(clips[clip].setGlobalRotY);
+    setGlobalRotZ.set(clips[clip].setGlobalRotZ);
+    
+    setGlobalTransX.set(clips[clip].setGlobalTransX);
+    setGlobalTransY.set(clips[clip].setGlobalTransY);
+    setGlobalTransZ.set(clips[clip].setGlobalTransZ);
+    
+    setLocalRotX.set(clips[clip].setLocalRotX);
+    setLocalRotY.set(clips[clip].setLocalRotY);
+    setLocalRotZ.set(clips[clip].setLocalRotZ);
+    
+    setLocalTransX.set(clips[clip].setLocalTransX);
+    setLocalTransY.set(clips[clip].setLocalTransY);
+    setLocalTransZ.set(clips[clip].setLocalTransZ);
+    
+    setObjRotX.set(clips[clip].setObjRotX);
+    setObjRotY.set(clips[clip].setObjRotY);
+    setObjRotZ.set(clips[clip].setObjRotZ);
+    
+    localScale.set(clips[clip].localScale);
+    globalScale.set(clips[clip].globalScale);
     
     
     ofLog() << "ofxTLVMMControl::setClipParams(int c) - current clip: " << clip;
+}
+
+//--------------------------------------------------------------
+void ofxTLVMMControl::saveClipXML(int c){
+    
+}
+
+//--------------------------------------------------------------
+void ofxTLVMMControl::loadClipXML(int c){
+    
+    
+    string savedClipSettingsPath = getXMLFilePath();
+    ofxXmlSettings savedVMMSettings;
+
+    
+    if( savedVMMSettings.loadFile(savedClipSettingsPath) ){
+        ofLogVerbose("LOAD") << "ofxTLVMMControl::load() - Loading VMM.xml " << savedClipSettingsPath;
+        
+
+        
+        bool VMM_playNoteOff = savedVMMSettings.getValue("VMM:playNoteOff", 0);
+        clips[c].playNoteOff = VMM_playNoteOff;
+        
+        //sendOSC("playNoteOff", VMM_playNoteOff);
+        //playNoteOff = VMM_playNoteOff;
+        //playNoteOffToggle->setEnabled(playNoteOff);
+        
+        bool VMM_playAll = savedVMMSettings.getValue("VMM:playAll", 0);
+        clips[c].playAll = VMM_playAll;
+        
+        //sendOSC("playAll", VMM_playAll);
+        //playAll = VMM_playAll;
+        //playAllToggle->setEnabled(playAll);
+        
+        bool VMM_mirror = savedVMMSettings.getValue("VMM:mirror", 0);
+        clips[c].mirror = VMM_mirror;
+        
+        //sendOSC("mirror", VMM_mirror);
+        //mirror = VMM_mirror;
+        //mirrorToggle->setEnabled(mirror);
+        
+        bool VMM_mirrorX = savedVMMSettings.getValue("VMM:mirrorX", 0);
+        clips[c].mirrorX = VMM_mirrorX;
+        
+        //sendOSC("mirrorX", VMM_mirrorX);
+        //mirrorX = VMM_mirrorX;
+        //mirrorXToggle->setEnabled(mirrorX);
+        
+        bool VMM_mirrorY = savedVMMSettings.getValue("VMM:mirrorY", 0);
+        clips[c].mirrorY = VMM_mirrorY;
+        
+        //sendOSC("mirrorY", VMM_mirrorY);
+        //mirrorY = VMM_mirrorY;
+        //mirrorYToggle->setEnabled(mirrorY);
+        
+        bool VMM_mirrorZ = savedVMMSettings.getValue("VMM:mirrorZ", 0);
+        clips[c].mirrorZ = VMM_mirrorZ;
+        
+        //sendOSC("mirrorZ", VMM_mirrorZ);
+        //mirrorZ = VMM_mirrorZ;
+        //mirrorZToggle->setEnabled(mirrorZ);
+        
+        
+        //update the params
+        int VMM_OSCsetMatCap = savedVMMSettings.getValue("VMM:OSCsetMatCap", 0);
+        clips[c].OSCsetMatCap = VMM_OSCsetMatCap;
+        
+        //sendOSC("OSCsetMatCap", VMM_OSCsetMatCap);
+        //OSCsetMatCap.set(VMM_OSCsetMatCap);
+        
+        
+        //temp out
+        /*
+        
+        int VMM_OSCsetTrack = savedVMMSettings.getValue("VMM:OSCsetTrack", 0);
+        ////sendOSC("OSCsetTrack", VMM_OSCsetTrack);
+        OSCsetTrack.set(VMM_OSCsetTrack);
+        
+        int VMM_localSlices = savedVMMSettings.getValue("VMM:localSlices", 0);
+        //sendOSC("localSlices", VMM_localSlices);
+        localSlices.set(VMM_localSlices);
+        
+        int VMM_localCopies = savedVMMSettings.getValue("VMM:localCopies", 0);
+        //sendOSC("localCopies", VMM_localCopies);
+        localCopies.set(VMM_localCopies);
+        
+        int VMM_globalCopies = savedVMMSettings.getValue("VMM:globalCopies", 0);
+        //sendOSC("globalCopies", VMM_globalCopies);
+        globalCopies.set(VMM_globalCopies);
+        
+        int VMM_mirrorDistance = savedVMMSettings.getValue("VMM:mirrorDistance", 0);
+        //sendOSC("mirrorDistance", VMM_mirrorDistance);
+        mirrorDistance.set(VMM_mirrorDistance);
+        
+        int VMM_setGlobalRotX = savedVMMSettings.getValue("VMM:setGlobalRotX", 0);
+        //sendOSC("setGlobalRotX", VMM_setGlobalRotX);
+        setGlobalRotX.set(VMM_setGlobalRotX);
+        
+        int VMM_setGlobalRotY = savedVMMSettings.getValue("VMM:setGlobalRotY", 0);
+        //sendOSC("setGlobalRotY", VMM_setGlobalRotY);
+        setGlobalRotY.set(VMM_setGlobalRotY);
+        
+        int VMM_setGlobalRotZ = savedVMMSettings.getValue("VMM:setGlobalRotZ", 0);
+        //sendOSC("setGlobalRotZ", VMM_setGlobalRotZ);
+        setGlobalRotZ.set(VMM_setGlobalRotZ);
+        
+        int VMM_setGlobalTransX = savedVMMSettings.getValue("VMM:setGlobalTransX", 0);
+        //sendOSC("setGlobalTransX", VMM_setGlobalTransX);
+        setGlobalTransX.set(VMM_setGlobalTransX);
+        
+        int VMM_setGlobalTransY = savedVMMSettings.getValue("VMM:setGlobalTransY", 0);
+        //sendOSC("setGlobalTransY", VMM_setGlobalTransY);
+        setGlobalTransY.set(VMM_setGlobalTransY);
+        
+        int VMM_setGlobalTransZ = savedVMMSettings.getValue("VMM:setGlobalTransZ", 0);
+        //sendOSC("setGlobalTransZ", VMM_setGlobalTransZ);
+        setGlobalTransZ.set(VMM_setGlobalTransZ);
+        
+        int VMM_setLocalRotX = savedVMMSettings.getValue("VMM:setLocalRotX", 0);
+        //sendOSC("setLocalRotX", VMM_setLocalRotX);
+        setLocalRotX.set(VMM_setLocalRotX);
+        
+        int VMM_setLocalRotY = savedVMMSettings.getValue("VMM:setLocalRotY", 0);
+        //sendOSC("setLocalRotY", VMM_setLocalRotY);
+        setLocalRotY.set(VMM_setLocalRotY);
+        
+        int VMM_setLocalRotZ = savedVMMSettings.getValue("VMM:setLocalRotZ", 0);
+        //sendOSC("setLocalRotZ", VMM_setLocalRotZ);
+        setLocalRotZ.set(VMM_setLocalRotZ);
+        
+        int VMM_setLocalTransX = savedVMMSettings.getValue("VMM:setLocalTransX", 0);
+        //sendOSC("setLocalTransX", VMM_setLocalTransX);
+        setLocalTransX.set(VMM_setLocalTransX);
+        
+        int VMM_setLocalTransY = savedVMMSettings.getValue("VMM:setLocalTransY", 0);
+        //sendOSC("setLocalTransY", VMM_setLocalTransY);
+        setLocalTransY.set(VMM_setLocalTransY);
+        
+        int VMM_setLocalTransZ = savedVMMSettings.getValue("VMM:setLocalTransZ", 0);
+        //sendOSC("setLocalTransZ", VMM_setLocalTransZ);
+        setLocalTransZ.set(VMM_setLocalTransZ);
+        
+        int VMM_setObjRotX = savedVMMSettings.getValue("VMM:setObjRotX", 0);
+        //sendOSC("setObjRotX", VMM_setObjRotX);
+        setObjRotX.set(VMM_setObjRotX);
+        
+        int VMM_setObjRotY = savedVMMSettings.getValue("VMM:setObjRotY", 0);
+        //sendOSC("setObjRotY", VMM_setObjRotY);
+        setObjRotY.set(VMM_setObjRotY);
+        
+        int VMM_setObjRotZ = savedVMMSettings.getValue("VMM:setObjRotZ", 0);
+        //sendOSC("setObjRotZ", VMM_setObjRotZ);
+        setObjRotZ.set(VMM_setObjRotZ);
+        
+        int VMM_localScale = savedVMMSettings.getValue("VMM:localScale", 0);
+        //sendOSC("localScale", VMM_localScale);
+        localScale.set(VMM_localScale);
+        
+        int VMM_globalScale = savedVMMSettings.getValue("VMM:globalScale", 0);
+        //sendOSC("globalScale", VMM_globalScale);
+        globalScale.set(VMM_globalScale);
+        */
+        
+        
+        
+    }else{
+        ofLogError("LOAD") <<  "ofxTLVMMControl::load() - unable to load: " << savedClipSettingsPath ;
+        return;
+    }
+
 }
 
 
@@ -317,38 +537,41 @@ void ofxTLVMMControl::trackGuiButtonEvent(ofxDatGuiButtonEvent e){
         
         //ofxDatGuiToggle
         bool playNoteOffStatus = e.target->getEnabled();
-        clips[clip].playNoteOff = playNoteOffStatus;
-        playNoteOff = playNoteOffStatus;
+        
+        playNoteOff = clips[clip].playNoteOff = playNoteOffStatus;
         sendOSC("playNoteOff", playNoteOff);
         
     } else if (e.target->is("playAll")){
         
         bool playAllTglStatus = e.target->getEnabled();
-        clips[clip].playAll = playAllTglStatus;
-        playAll = playAllTglStatus;
+        
+        playAll = clips[clip].playAll = playAllTglStatus;
         sendOSC("playAll", playAll);
     } else if (e.target->is("mirror")){
         
         bool mirrorTglStatus = e.target->getEnabled();
-        clips[clip].mirror = mirrorTglStatus;
-        mirror = mirrorTglStatus;
+        
+        mirror = clips[clip].mirror = mirrorTglStatus;
         sendOSC("mirror", mirror);
         
     } else if (e.target->is("mirrorX")){
         
         bool mirrorXTglStatus = e.target->getEnabled();
+        
         mirrorX = clips[clip].mirrorX = mirrorXTglStatus;
         sendOSC("mirrorX", mirrorX);
         
     } else if (e.target->is("mirrorY")){
         
         bool mirrorYTglStatus = e.target->getEnabled();
+        
         mirrorY = clips[clip].mirrorY = mirrorYTglStatus;
         sendOSC("mirrorY", mirrorY);
         
     } else if (e.target->is("mirrorZ")){
         
         bool mirrorZTglStatus = e.target->getEnabled();
+        
         mirrorZ = clips[clip].mirrorZ = mirrorZTglStatus;
         sendOSC("mirrorZ", mirrorZ);
         
@@ -365,12 +588,135 @@ void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
         float angle = 360.0/e.target->getValue();
         setLocalRotZ.set(angle);
 
-    } else if (e.target->getName() == "OSCsetMatCap"){
+    }
+    
+    if (e.target->getName() == "OSCsetMatCap"){
         
         clips[clip].OSCsetMatCap = e.target->getValue();
         OSCsetMatCap.set(clips[clip].OSCsetMatCap);
+        
+    } else if (e.target->getName() == "OSCsetTrack"){
+        
+        clips[clip].OSCsetTrack = e.target->getValue();
+        OSCsetTrack.set(clips[clip].OSCsetTrack);
+    
+    } else if (e.target->getName() == "localSlices"){
+        
+        clips[clip].localSlices = e.target->getValue();
+        localSlices.set(clips[clip].localSlices);
+        
+    } else if (e.target->getName() == "localCopies"){
+        
+        
+        clips[clip].localCopies = e.target->getValue();
+        localCopies.set(clips[clip].localCopies);
+        
+        
+        float angle = 360.0/e.target->getValue();
+        clips[clip].setLocalRotZ = angle;
+        setLocalRotZ.set(angle);
+        
+    } else if (e.target->getName() == "globalCopies"){
+        
+        clips[clip].globalCopies = e.target->getValue();
+        globalCopies.set(clips[clip].globalCopies);
+        
+    } else if (e.target->getName() == "mirrorDistance"){
+        
+        clips[clip].mirrorDistance = e.target->getValue();
+        mirrorDistance.set(clips[clip].mirrorDistance);
+        
+    } else if (e.target->getName() == "setGlobalRotX"){
+        
+        clips[clip].setGlobalRotX = e.target->getValue();
+        setGlobalRotX.set(clips[clip].setGlobalRotX);
+        
+    } else if (e.target->getName() == "setGlobalRotY"){
+        
+        clips[clip].setGlobalRotY = e.target->getValue();
+        setGlobalRotY.set(clips[clip].setGlobalRotY);
+        
+    } else if (e.target->getName() == "setGlobalRotZ"){
+        
+        clips[clip].setGlobalRotZ = e.target->getValue();
+        setGlobalRotZ.set(clips[clip].setGlobalRotZ);
+        
+    } else if (e.target->getName() == "setGlobalTransX"){
+        
+        clips[clip].setGlobalTransX = e.target->getValue();
+        setGlobalTransX.set(clips[clip].setGlobalTransX);
+        
+    } else if (e.target->getName() == "setGlobalTransY"){
+        
+        clips[clip].setGlobalTransY = e.target->getValue();
+        setGlobalTransY.set(clips[clip].setGlobalTransY);
+        
+    } else if (e.target->getName() == "setGlobalTransZ"){
+        
+        clips[clip].setGlobalTransZ = e.target->getValue();
+        setGlobalTransZ.set(clips[clip].setGlobalTransZ);
+        
+    } else if (e.target->getName() == "setLocalRotX"){
+        
+        clips[clip].setLocalRotX = e.target->getValue();
+        setLocalRotX.set(clips[clip].setLocalRotX);
+        
+    } else if (e.target->getName() == "setLocalRotY"){
+        
+        clips[clip].setLocalRotY = e.target->getValue();
+        setLocalRotY.set(clips[clip].setLocalRotY);
+        
+    } else if (e.target->getName() == "setLocalRotZ"){
+        
+        clips[clip].setLocalRotZ = e.target->getValue();
+        setLocalRotZ.set(clips[clip].setLocalRotZ);
+        
+    } else if (e.target->getName() == "setLocalTransX"){
+        
+        clips[clip].setLocalTransX = e.target->getValue();
+        setLocalTransX.set(clips[clip].setLocalTransX);
+        
+    } else if (e.target->getName() == "setLocalTransY"){
+        
+        clips[clip].setLocalTransY = e.target->getValue();
+        setLocalTransY.set(clips[clip].setLocalTransY);
+        
+    } else if (e.target->getName() == "setLocalTransZ"){
+        
+        clips[clip].setLocalTransZ = e.target->getValue();
+        setLocalTransZ.set(clips[clip].setLocalTransZ);
+        
+    } else if (e.target->getName() == "setObjRotX"){
+        
+        clips[clip].setObjRotX = e.target->getValue();
+        setObjRotX.set(clips[clip].setObjRotX);
+        
+    } else if (e.target->getName() == "setObjRotY"){
+        
+        clips[clip].setObjRotY = e.target->getValue();
+        setObjRotY.set(clips[clip].setObjRotY);
+        
+    } else if (e.target->getName() == "setObjRotZ"){
+        
+        clips[clip].setObjRotZ = e.target->getValue();
+        setObjRotZ.set(clips[clip].setObjRotZ);
+        
+    } else if (e.target->getName() == "localScale"){
+        
+        clips[clip].localScale = e.target->getValue();
+        localScale.set(clips[clip].localScale);
+        
+    } else if (e.target->getName() == "globalScale"){
+        
+        clips[clip].globalScale = e.target->getValue();
+        globalScale.set(clips[clip].globalScale);
+        
     }
 
+    
+        
+        
+        
     sendOSC(e.target->getName(), e.target->getValue());
     
 }
