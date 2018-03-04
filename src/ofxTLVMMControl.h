@@ -58,6 +58,7 @@ public:
     ofxOscMessage m;
     string message;
     int value;
+    
   
     void composeOscMsg(int track, string msg, float val){
         message = "/" + msg;
@@ -68,6 +69,23 @@ public:
         m.setAddress(message);
         m.addIntArg(track);
         m.addIntArg(value);
+    }
+    
+    void composeIntOscMsg(int track, string msg, int val){
+        message = "/" + msg;
+
+        m.clear();
+        m.setAddress(message);
+        m.addIntArg(track);
+        m.addIntArg(val);
+    }
+    
+    void composeFloatOscMsg(int track, string msg, float val){
+        message = "/" + msg;
+        m.clear();
+        m.setAddress(message);
+        m.addIntArg(track);
+        m.addFloatArg(val);
     }
     
     static ofEvent <VMMOscMessageEvent> events;
@@ -89,26 +107,26 @@ class ofxTLVMMControl : public ofxTLTrack {
         int localCopies;
         int globalCopies;
         float mirrorDistance;
-        int setGlobalRotX;
-        int setGlobalRotY;
-        int setGlobalRotZ;
-        int setGlobalTransX;
-        int setGlobalTransY;
-        int setGlobalTransZ;
+        float setGlobalRotX;
+        float setGlobalRotY;
+        float setGlobalRotZ;
+        float setGlobalTransX;
+        float setGlobalTransY;
+        float setGlobalTransZ;
         
-        int setLocalRotX;
-        int setLocalRotY;
-        int setLocalRotZ;
-        int setLocalTransX;
-        int setLocalTransY;
-        int setLocalTransZ;
+        float setLocalRotX;
+        float setLocalRotY;
+        float setLocalRotZ;
+        float setLocalTransX;
+        float setLocalTransY;
+        float setLocalTransZ;
         
-        int setObjRotX;
-        int setObjRotY;
-        int setObjRotZ;
+        float setObjRotX;
+        float setObjRotY;
+        float setObjRotZ;
         
-        int localScale;
-        int globalScale;
+        float localScale;
+        float globalScale;
         
         
     };
@@ -160,55 +178,55 @@ class ofxTLVMMControl : public ofxTLTrack {
     ofParameter<float> mirrorDistance;
     ofxDatGuiSlider* mirrorDistanceSlider;
 
-    ofParameter<int> setGlobalRotX;
+    ofParameter<float> setGlobalRotX;
     ofxDatGuiSlider* setGlobalRotXSlider;
     
-    ofParameter<int> setGlobalRotY;
+    ofParameter<float> setGlobalRotY;
     ofxDatGuiSlider* setGlobalRotYSlider;
     
-    ofParameter<int> setGlobalRotZ;
+    ofParameter<float> setGlobalRotZ;
     ofxDatGuiSlider* setGlobalRotZSlider;
     
-    ofParameter<int> setGlobalTransX;
+    ofParameter<float> setGlobalTransX;
     ofxDatGuiSlider* setGlobalTransXSlider;
     
-    ofParameter<int> setGlobalTransY;
+    ofParameter<float> setGlobalTransY;
     ofxDatGuiSlider* setGlobalTransYSlider;
     
-    ofParameter<int> setGlobalTransZ;
+    ofParameter<float> setGlobalTransZ;
     ofxDatGuiSlider* setGlobalTransZSlider;
     
-    ofParameter<int> setLocalRotX;
+    ofParameter<float> setLocalRotX;
     ofxDatGuiSlider* setLocalRotXSlider;
     
-    ofParameter<int> setLocalRotY;
+    ofParameter<float> setLocalRotY;
     ofxDatGuiSlider* setLocalRotYSlider;
     
-    ofParameter<int> setLocalRotZ;
+    ofParameter<float> setLocalRotZ;
     ofxDatGuiSlider* setLocalRotZSlider;
     
-    ofParameter<int> setLocalTransX;
+    ofParameter<float> setLocalTransX;
     ofxDatGuiSlider* setLocalTransXSlider;
     
-    ofParameter<int> setLocalTransY;
+    ofParameter<float> setLocalTransY;
     ofxDatGuiSlider* setLocalTransYSlider;
     
-    ofParameter<int> setLocalTransZ;
+    ofParameter<float> setLocalTransZ;
     ofxDatGuiSlider* setLocalTransZSlider;
     
-    ofParameter<int> setObjRotX;
+    ofParameter<float> setObjRotX;
     ofxDatGuiSlider* setObjRotXSlider;
     
-    ofParameter<int> setObjRotY;
+    ofParameter<float> setObjRotY;
     ofxDatGuiSlider* setObjRotYSlider;
     
-    ofParameter<int> setObjRotZ;
+    ofParameter<float> setObjRotZ;
     ofxDatGuiSlider* setObjRotZSlider;
     
-    ofParameter<int> localScale;
+    ofParameter<float> localScale;
     ofxDatGuiSlider* localScaleSlider;
     
-    ofParameter<int> globalScale;
+    ofParameter<float> globalScale;
     ofxDatGuiSlider* globalScaleSlider;
     
     
@@ -225,7 +243,7 @@ class ofxTLVMMControl : public ofxTLTrack {
     void setClipParams(int c);
     
     void saveClipXML(int c);
-    void loadClipXML(int c);
+    void loadClipXML(string filePath, int c);
     
     void setButtonToggle(ofxDatGuiButton* _button, bool &val);
     void trackGuiButtonEvent(ofxDatGuiButtonEvent e);
@@ -235,6 +253,8 @@ class ofxTLVMMControl : public ofxTLTrack {
     
     void trackGuiDelete();
 
+    void coutTrackParams(int c);
+    
 	//enable and disable are always automatically called
 	//in setup. Must call superclass's method as well as doing your own
 	//enabling and disabling

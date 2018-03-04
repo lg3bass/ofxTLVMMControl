@@ -305,6 +305,7 @@ void ofxTLVMMControl::setClipParams(int c){
     
     OSCsetMatCap.set(clips[clip].OSCsetMatCap);
     OSCsetTrack.set(clips[clip].OSCsetTrack);
+    localSlices.set(clips[clip].localSlices);
     localScale.set(clips[clip].localScale);
     localCopies.set(clips[clip].localCopies);
     globalCopies.set(clips[clip].globalCopies);
@@ -342,168 +343,129 @@ void ofxTLVMMControl::saveClipXML(int c){
 }
 
 //--------------------------------------------------------------
-void ofxTLVMMControl::loadClipXML(int c){
+void ofxTLVMMControl::loadClipXML(string filePath, int c){
     
+    /*
+    string savedClipSettingsPath = "";
     
-    string savedClipSettingsPath = getXMLFilePath();
+    if(ofSplitString(getXMLFilePath(),"/").size() > 1){
+        //we have set a project and loaded already.  The file path should be set on the timelines.
+        savedClipSettingsPath = getXMLFilePath();
+        
+    } else {
+        //if getXMLFilePath() only returns the fileaname
+        //consider we are loading first time and construct filepath.
+        savedClipSettingsPath = filePath + getXMLFilePath();
+    }
+    */
+    
+    string savedClipSettingsPath = filePath + "VMM.xml";
     ofxXmlSettings savedVMMSettings;
 
-    
-    if( savedVMMSettings.loadFile(savedClipSettingsPath) ){
-        ofLogVerbose("LOAD") << "ofxTLVMMControl::load() - Loading VMM.xml " << savedClipSettingsPath;
-        
+    if(ofFile(savedClipSettingsPath).exists()){
+        //ofLogVerbose("LOAD") << "savedClipSettingsPath: " << savedClipSettingsPath << " EXISTS!!!!";
 
+        if( savedVMMSettings.loadFile(savedClipSettingsPath) ){
+            ofLogVerbose("LOAD") << savedClipSettingsPath;
+            
+            bool VMM_playNoteOff = savedVMMSettings.getValue("VMM:playNoteOff", 0);
+            clips[c].playNoteOff = VMM_playNoteOff;
+            
+            bool VMM_playAll = savedVMMSettings.getValue("VMM:playAll", 0);
+            clips[c].playAll = VMM_playAll;
+            
+            bool VMM_mirror = savedVMMSettings.getValue("VMM:mirror", 0);
+            clips[c].mirror = VMM_mirror;
+            
+            bool VMM_mirrorX = savedVMMSettings.getValue("VMM:mirrorX", 0);
+            clips[c].mirrorX = VMM_mirrorX;
+            
+            bool VMM_mirrorY = savedVMMSettings.getValue("VMM:mirrorY", 0);
+            clips[c].mirrorY = VMM_mirrorY;
+            
+            bool VMM_mirrorZ = savedVMMSettings.getValue("VMM:mirrorZ", 0);
+            clips[c].mirrorZ = VMM_mirrorZ;
+            
+            //update the params
+            int VMM_OSCsetMatCap = savedVMMSettings.getValue("VMM:OSCsetMatCap", 0);
+            clips[c].OSCsetMatCap = VMM_OSCsetMatCap;
+            
+            int VMM_OSCsetTrack = savedVMMSettings.getValue("VMM:OSCsetTrack", 0);
+            clips[c].OSCsetTrack = VMM_OSCsetTrack;
+            
+            int VMM_localSlices = savedVMMSettings.getValue("VMM:localSlices", 0);
+            clips[c].localSlices = VMM_localSlices;
+
+            int VMM_localCopies = savedVMMSettings.getValue("VMM:localCopies", 0);
+            clips[c].localCopies = VMM_localCopies;
+
+            int VMM_globalCopies = savedVMMSettings.getValue("VMM:globalCopies", 0);
+            clips[c].globalCopies = VMM_globalCopies;
+            
+            float VMM_mirrorDistance = savedVMMSettings.getValue("VMM:mirrorDistance", 0.0);
+            clips[c].mirrorDistance = VMM_mirrorDistance;
+            
+            float VMM_setGlobalRotX = savedVMMSettings.getValue("VMM:setGlobalRotX", 0.0);
+            clips[c].setGlobalRotX = VMM_setGlobalRotX;
+
+            float VMM_setGlobalRotY = savedVMMSettings.getValue("VMM:setGlobalRotY", 0.0);
+            clips[c].setGlobalRotY = VMM_setGlobalRotY;
         
-        bool VMM_playNoteOff = savedVMMSettings.getValue("VMM:playNoteOff", 0);
-        clips[c].playNoteOff = VMM_playNoteOff;
-        
-        //sendOSC("playNoteOff", VMM_playNoteOff);
-        //playNoteOff = VMM_playNoteOff;
-        //playNoteOffToggle->setEnabled(playNoteOff);
-        
-        bool VMM_playAll = savedVMMSettings.getValue("VMM:playAll", 0);
-        clips[c].playAll = VMM_playAll;
-        
-        //sendOSC("playAll", VMM_playAll);
-        //playAll = VMM_playAll;
-        //playAllToggle->setEnabled(playAll);
-        
-        bool VMM_mirror = savedVMMSettings.getValue("VMM:mirror", 0);
-        clips[c].mirror = VMM_mirror;
-        
-        //sendOSC("mirror", VMM_mirror);
-        //mirror = VMM_mirror;
-        //mirrorToggle->setEnabled(mirror);
-        
-        bool VMM_mirrorX = savedVMMSettings.getValue("VMM:mirrorX", 0);
-        clips[c].mirrorX = VMM_mirrorX;
-        
-        //sendOSC("mirrorX", VMM_mirrorX);
-        //mirrorX = VMM_mirrorX;
-        //mirrorXToggle->setEnabled(mirrorX);
-        
-        bool VMM_mirrorY = savedVMMSettings.getValue("VMM:mirrorY", 0);
-        clips[c].mirrorY = VMM_mirrorY;
-        
-        //sendOSC("mirrorY", VMM_mirrorY);
-        //mirrorY = VMM_mirrorY;
-        //mirrorYToggle->setEnabled(mirrorY);
-        
-        bool VMM_mirrorZ = savedVMMSettings.getValue("VMM:mirrorZ", 0);
-        clips[c].mirrorZ = VMM_mirrorZ;
-        
-        //sendOSC("mirrorZ", VMM_mirrorZ);
-        //mirrorZ = VMM_mirrorZ;
-        //mirrorZToggle->setEnabled(mirrorZ);
-        
-        
-        //update the params
-        int VMM_OSCsetMatCap = savedVMMSettings.getValue("VMM:OSCsetMatCap", 0);
-        clips[c].OSCsetMatCap = VMM_OSCsetMatCap;
-        
-        //sendOSC("OSCsetMatCap", VMM_OSCsetMatCap);
-        //OSCsetMatCap.set(VMM_OSCsetMatCap);
-        
-        
-        //temp out
-        /*
-        
-        int VMM_OSCsetTrack = savedVMMSettings.getValue("VMM:OSCsetTrack", 0);
-        ////sendOSC("OSCsetTrack", VMM_OSCsetTrack);
-        OSCsetTrack.set(VMM_OSCsetTrack);
-        
-        int VMM_localSlices = savedVMMSettings.getValue("VMM:localSlices", 0);
-        //sendOSC("localSlices", VMM_localSlices);
-        localSlices.set(VMM_localSlices);
-        
-        int VMM_localCopies = savedVMMSettings.getValue("VMM:localCopies", 0);
-        //sendOSC("localCopies", VMM_localCopies);
-        localCopies.set(VMM_localCopies);
-        
-        int VMM_globalCopies = savedVMMSettings.getValue("VMM:globalCopies", 0);
-        //sendOSC("globalCopies", VMM_globalCopies);
-        globalCopies.set(VMM_globalCopies);
-        
-        int VMM_mirrorDistance = savedVMMSettings.getValue("VMM:mirrorDistance", 0);
-        //sendOSC("mirrorDistance", VMM_mirrorDistance);
-        mirrorDistance.set(VMM_mirrorDistance);
-        
-        int VMM_setGlobalRotX = savedVMMSettings.getValue("VMM:setGlobalRotX", 0);
-        //sendOSC("setGlobalRotX", VMM_setGlobalRotX);
-        setGlobalRotX.set(VMM_setGlobalRotX);
-        
-        int VMM_setGlobalRotY = savedVMMSettings.getValue("VMM:setGlobalRotY", 0);
-        //sendOSC("setGlobalRotY", VMM_setGlobalRotY);
-        setGlobalRotY.set(VMM_setGlobalRotY);
-        
-        int VMM_setGlobalRotZ = savedVMMSettings.getValue("VMM:setGlobalRotZ", 0);
-        //sendOSC("setGlobalRotZ", VMM_setGlobalRotZ);
-        setGlobalRotZ.set(VMM_setGlobalRotZ);
-        
-        int VMM_setGlobalTransX = savedVMMSettings.getValue("VMM:setGlobalTransX", 0);
-        //sendOSC("setGlobalTransX", VMM_setGlobalTransX);
-        setGlobalTransX.set(VMM_setGlobalTransX);
-        
-        int VMM_setGlobalTransY = savedVMMSettings.getValue("VMM:setGlobalTransY", 0);
-        //sendOSC("setGlobalTransY", VMM_setGlobalTransY);
-        setGlobalTransY.set(VMM_setGlobalTransY);
-        
-        int VMM_setGlobalTransZ = savedVMMSettings.getValue("VMM:setGlobalTransZ", 0);
-        //sendOSC("setGlobalTransZ", VMM_setGlobalTransZ);
-        setGlobalTransZ.set(VMM_setGlobalTransZ);
-        
-        int VMM_setLocalRotX = savedVMMSettings.getValue("VMM:setLocalRotX", 0);
-        //sendOSC("setLocalRotX", VMM_setLocalRotX);
-        setLocalRotX.set(VMM_setLocalRotX);
-        
-        int VMM_setLocalRotY = savedVMMSettings.getValue("VMM:setLocalRotY", 0);
-        //sendOSC("setLocalRotY", VMM_setLocalRotY);
-        setLocalRotY.set(VMM_setLocalRotY);
-        
-        int VMM_setLocalRotZ = savedVMMSettings.getValue("VMM:setLocalRotZ", 0);
-        //sendOSC("setLocalRotZ", VMM_setLocalRotZ);
-        setLocalRotZ.set(VMM_setLocalRotZ);
-        
-        int VMM_setLocalTransX = savedVMMSettings.getValue("VMM:setLocalTransX", 0);
-        //sendOSC("setLocalTransX", VMM_setLocalTransX);
-        setLocalTransX.set(VMM_setLocalTransX);
-        
-        int VMM_setLocalTransY = savedVMMSettings.getValue("VMM:setLocalTransY", 0);
-        //sendOSC("setLocalTransY", VMM_setLocalTransY);
-        setLocalTransY.set(VMM_setLocalTransY);
-        
-        int VMM_setLocalTransZ = savedVMMSettings.getValue("VMM:setLocalTransZ", 0);
-        //sendOSC("setLocalTransZ", VMM_setLocalTransZ);
-        setLocalTransZ.set(VMM_setLocalTransZ);
-        
-        int VMM_setObjRotX = savedVMMSettings.getValue("VMM:setObjRotX", 0);
-        //sendOSC("setObjRotX", VMM_setObjRotX);
-        setObjRotX.set(VMM_setObjRotX);
-        
-        int VMM_setObjRotY = savedVMMSettings.getValue("VMM:setObjRotY", 0);
-        //sendOSC("setObjRotY", VMM_setObjRotY);
-        setObjRotY.set(VMM_setObjRotY);
-        
-        int VMM_setObjRotZ = savedVMMSettings.getValue("VMM:setObjRotZ", 0);
-        //sendOSC("setObjRotZ", VMM_setObjRotZ);
-        setObjRotZ.set(VMM_setObjRotZ);
-        
-        int VMM_localScale = savedVMMSettings.getValue("VMM:localScale", 0);
-        //sendOSC("localScale", VMM_localScale);
-        localScale.set(VMM_localScale);
-        
-        int VMM_globalScale = savedVMMSettings.getValue("VMM:globalScale", 0);
-        //sendOSC("globalScale", VMM_globalScale);
-        globalScale.set(VMM_globalScale);
-        */
-        
-        
-        
-    }else{
-        ofLogError("LOAD") <<  "ofxTLVMMControl::load() - unable to load: " << savedClipSettingsPath ;
-        return;
+            float VMM_setGlobalRotZ = savedVMMSettings.getValue("VMM:setGlobalRotZ", 0.0);
+            clips[c].setGlobalRotZ = VMM_setGlobalRotZ;
+            
+            float VMM_setGlobalTransX = savedVMMSettings.getValue("VMM:setGlobalTransX", 0.0);
+            clips[c].setGlobalTransX = VMM_setGlobalTransX;
+
+            float VMM_setGlobalTransY = savedVMMSettings.getValue("VMM:setGlobalTransY", 0.0);
+            clips[c].setGlobalTransY = VMM_setGlobalTransY;
+
+            float VMM_setGlobalTransZ = savedVMMSettings.getValue("VMM:setGlobalTransZ", 0.0);
+            clips[c].setGlobalTransZ = VMM_setGlobalTransZ;
+
+            float VMM_setLocalRotX = savedVMMSettings.getValue("VMM:setLocalRotX", 0.0);
+            clips[c].setLocalRotX = VMM_setLocalRotX;
+
+            float VMM_setLocalRotY = savedVMMSettings.getValue("VMM:setLocalRotY", 0.0);
+            clips[c].setLocalRotY = VMM_setLocalRotY;
+
+            float VMM_setLocalRotZ = savedVMMSettings.getValue("VMM:setLocalRotZ", 0.0);
+            clips[c].setLocalRotZ = VMM_setLocalRotZ;
+
+            float VMM_setLocalTransX = savedVMMSettings.getValue("VMM:setLocalTransX", 0.0);
+            clips[c].setLocalTransX = VMM_setLocalTransX;
+            
+            float VMM_setLocalTransY = savedVMMSettings.getValue("VMM:setLocalTransY", 0.0);
+            clips[c].setLocalTransY = VMM_setLocalTransY;
+
+            float VMM_setLocalTransZ = savedVMMSettings.getValue("VMM:setLocalTransZ", 0.0);
+            clips[c].setLocalTransZ = VMM_setLocalTransZ;
+
+            float VMM_setObjRotX = savedVMMSettings.getValue("VMM:setObjRotX", 0.0);
+            clips[c].setObjRotX = VMM_setObjRotX;
+            
+            float VMM_setObjRotY = savedVMMSettings.getValue("VMM:setObjRotY", 0.0);
+            clips[c].setObjRotY = VMM_setObjRotY;
+
+            float VMM_setObjRotZ = savedVMMSettings.getValue("VMM:setObjRotZ", 0.0);
+            clips[c].setObjRotZ = VMM_setObjRotZ;
+            
+            float VMM_localScale = savedVMMSettings.getValue("VMM:localScale", 0.0);
+            clips[c].localScale = VMM_localScale;
+
+            float VMM_globalScale = savedVMMSettings.getValue("VMM:globalScale", 0.0);
+            clips[c].globalScale = VMM_globalScale;
+            
+            
+            
+            //DEBUG - output all the loaded params
+            //coutTrackParams(c);
+            
+        }else{
+            ofLogError("LOAD") <<  "ofxTLVMMControl::load() - unable to load: " << savedClipSettingsPath ;
+            return;
+        }
     }
-
 }
 
 
@@ -583,12 +545,14 @@ void ofxTLVMMControl::trackGuiButtonEvent(ofxDatGuiButtonEvent e){
 //--------------------------------------------------------------
 void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
 
+    /*
     if(e.target->getName() == "localCopies"){
 
         float angle = 360.0/e.target->getValue();
         setLocalRotZ.set(angle);
 
     }
+    */
     
     if (e.target->getName() == "OSCsetMatCap"){
         
@@ -723,8 +687,28 @@ void ofxTLVMMControl::trackGuiSliderEvent(ofxDatGuiSliderEvent e){
 
 //--------------------------------------------------------------
 void ofxTLVMMControl::sendOSC(string name, float value) {
+    
+    //OLD - need separate based on asset type.
     static VMMOscMessageEvent vmmOscEvent;
-    vmmOscEvent.composeOscMsg(track+1, name, value);
+    //vmmOscEvent.composeOscMsg(track+1, name, value);
+    //ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
+    
+    if (name == "setGlobalRotX" || name == "setGlobalRotY" || name == "setGlobalRotZ") {
+        vmmOscEvent.composeFloatOscMsg(track+1, name, value);
+    } else if (name == "setGlobalTransX" || name == "setGlobalTransY" || name == "setGlobalTransZ") {
+        vmmOscEvent.composeFloatOscMsg(track+1, name, value);
+    } else if (name == "setLocalRotX" || name == "setLocalRotY" || name == "setLocalRotZ") {
+        vmmOscEvent.composeFloatOscMsg(track+1, name, value);
+    } else if (name == "setLocalTransX" || name == "setLocalTransY" || name == "setLocalTransZ") {
+        vmmOscEvent.composeFloatOscMsg(track+1, name, value);
+    } else if (name == "setObjRotX" || name == "setObjRotY" || name == "setObjRotZ") {
+        vmmOscEvent.composeFloatOscMsg(track+1, name, value);
+    } else if (name == "localScale" || name == "globalScale") {
+        vmmOscEvent.composeFloatOscMsg(track+1, name, value);
+    } else {
+        vmmOscEvent.composeIntOscMsg(track+1, name, int(value));
+    }
+    
     ofNotifyEvent(VMMOscMessageEvent::events, vmmOscEvent);
 }
 
@@ -737,7 +721,7 @@ void ofxTLVMMControl::enable(){
     ofxTLTrack::enable();
     
     guiAcceptEvents = true;
-    cout << "Called from TimelinePanel - ofxTLVMMControl::enable() - guiAcceptEvents " << guiAcceptEvents << endl;
+    //cout << "Called from TimelinePanel - ofxTLVMMControl::enable() - guiAcceptEvents " << guiAcceptEvents << endl;
     
 	//other enabling
     OSCsetMatCapSlider->setEnabled(true);
@@ -775,7 +759,7 @@ void ofxTLVMMControl::disable(){
     ofxTLTrack::disable();
 
     guiAcceptEvents = false;
-    cout << "Called from TimelinePanel - ofxTLVMMControl::disable() - guiAcceptEvents " << guiAcceptEvents << endl;
+    //cout << "Called from TimelinePanel - ofxTLVMMControl::disable() - guiAcceptEvents " << guiAcceptEvents << endl;
     
 	//other disabling
     OSCsetMatCapSlider->setEnabled(false);
@@ -809,6 +793,9 @@ void ofxTLVMMControl::disable(){
 
 //--------------------------------------------------------------
 void ofxTLVMMControl::trackGuiDelete(){
+    
+    //clear the clips vector
+    clips.clear();
     
     delete OSCsetMatCapSlider;
     delete OSCsetTrackSlider;
@@ -851,6 +838,45 @@ void ofxTLVMMControl::trackGuiDelete(){
     //ofRemoveListener(, this, &ofxTLVMMControl::trackGuiSliderEvent);
     //ofRemoveListener(OSCsetTrackSlider, this, &ofxTLVMMControl::trackGuiSliderEvent);
 }
+
+//--------------------------------------------------------------
+void ofxTLVMMControl::coutTrackParams(int c){
+    
+    cout << "clip: " << clip << endl;
+    cout << "clips[clip].playNoteOff; - " << ofToString(clips[c].playNoteOff) << endl;
+    cout << "clips[clip].playAll; - " << ofToString(clips[c].playAll) << endl;
+    cout << "clips[clip].mirror; - " << ofToString(clips[c].mirror) << endl;
+    cout << "clips[clip].mirrorX; - " << ofToString(clips[c].mirrorX) << endl;
+    cout << "clips[clip].mirrorY; - " << ofToString(clips[c].mirrorY) << endl;
+    cout << "clips[clip].mirrorZ; - " << ofToString(clips[c].mirrorZ) << endl;
+    cout << "clips[clip].OSCsetMatCap; - " << ofToString(clips[c].OSCsetMatCap) << endl;
+    cout << "clips[clip].OSCsetTrack; - " << ofToString(clips[c].OSCsetTrack) << endl;
+    cout << "clips[clip].localSlices; - " << ofToString(clips[c].localSlices) << endl;
+    cout << "clips[clip].localScale; - " << ofToString(clips[c].localScale) << endl;
+    cout << "clips[clip].localCopies; - " << ofToString(clips[c].localCopies) << endl;
+    cout << "clips[clip].globalCopies; - " << ofToString(clips[c].globalCopies) << endl;
+    cout << "clips[clip].mirrorDistance; - " << ofToString(clips[c].mirrorDistance) << endl;
+    cout << "clips[clip].setGlobalRotX; - " << ofToString(clips[c].setGlobalRotX) << endl;
+    cout << "clips[clip].setGlobalRotY; - " << ofToString(clips[c].setGlobalRotY) << endl;
+    cout << "clips[clip].setGlobalRotZ; - " << ofToString(clips[c].setGlobalRotZ) << endl;
+    cout << "clips[clip].setGlobalTransX; - " << ofToString(clips[c].setGlobalTransX) << endl;
+    cout << "clips[clip].setGlobalTransY; - " << ofToString(clips[c].setGlobalTransY) << endl;
+    cout << "clips[clip].setGlobalTransZ; - " << ofToString(clips[c].setGlobalTransZ) << endl;
+    cout << "clips[clip].setLocalRotX; - " << ofToString(clips[c].setLocalRotX) << endl;
+    cout << "clips[clip].setLocalRotY; - " << ofToString(clips[c].setLocalRotY) << endl;
+    cout << "clips[clip].setLocalRotZ; - " << ofToString(clips[c].setLocalRotZ) << endl;
+    cout << "clips[clip].setLocalTransX; - " << ofToString(clips[c].setLocalTransX) << endl;
+    cout << "clips[clip].setLocalTransY; - " << ofToString(clips[c].setLocalTransY) << endl;
+    cout << "clips[clip].setLocalTransZ; - " << ofToString(clips[c].setLocalTransZ) << endl;
+    cout << "clips[clip].setObjRotX; - " << ofToString(clips[c].setObjRotX) << endl;
+    cout << "clips[clip].setObjRotY; - " << ofToString(clips[c].setObjRotY) << endl;
+    cout << "clips[clip].setObjRotZ; - " << ofToString(clips[c].setObjRotZ) << endl;
+    cout << "clips[clip].localScale; - " << ofToString(clips[c].localScale) << endl;
+    cout << "clips[clip].globalScale; - " << ofToString(clips[c].globalScale) << endl;
+    
+}
+
+
 
 //update is called every frame.
 //if your track triggers events it's good to do it here
@@ -1216,7 +1242,9 @@ void ofxTLVMMControl::save(){
 //--------------------------------------------------------------
 void ofxTLVMMControl::load(){
     
-    ofLog() << "ofxTLVMMControl::load() - DO NOTHING!";
+    //ofLog() << "ofxTLVMMControl::load() - DO NOTHING! - path: " << getXMLFilePath();
+    
+    //string savedClipSettingsPath = getXMLFilePath();
     
     /*
     
