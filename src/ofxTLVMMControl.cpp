@@ -88,7 +88,7 @@ ofxTLVMMControl::ofxTLVMMControl(){
     localSlices.set("localSlices",clips[clip].localSlices,1,4);
     localCopies.set("localCopies",clips[clip].localCopies,1,12);
     globalCopies.set("globalCopies",clips[clip].globalCopies,1,12);
-    mirrorDistance.set("mirrorDistance",clips[clip].mirrorDistance,-50.0,50.0);
+    mirrorDistance.set("mirrorDistance",clips[clip].mirrorDistance,-100.0,100.0);
     
     playNoteOff = clips[clip].playNoteOff;
     playAll = clips[clip].playAll;
@@ -117,8 +117,8 @@ ofxTLVMMControl::ofxTLVMMControl(){
     setObjRotY.set("setObjRotY",clips[clip].setObjRotY,-180,180);
     setObjRotZ.set("setObjRotZ",clips[clip].setObjRotZ,-180,180);
     
-    localScale.set("localScale",clips[clip].localScale,1,10);
-    globalScale.set("globalScale",clips[clip].globalScale,1,50);
+    localScale.set("localScale",clips[clip].localScale,0.1,10.0);
+    globalScale.set("globalScale",clips[clip].globalScale,1.0,50.0);
     
     
     //create all the gui components.
