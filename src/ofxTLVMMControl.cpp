@@ -723,8 +723,20 @@ void ofxTLVMMControl::enable(){
     guiAcceptEvents = true;
     //cout << "Called from TimelinePanel - ofxTLVMMControl::enable() - guiAcceptEvents " << guiAcceptEvents << endl;
     
+    
+    
+    /*
+    playNoteOffToggle->setEnabled(true);
+    playAllToggle->setEnabled(true);
+    mirrorToggle->setEnabled(true);
+    mirrorXToggle->setEnabled(true);
+    mirrorYToggle->setEnabled(true);
+    mirrorZToggle->setEnabled(true);
+    */
+    
+    
 	//other enabling
-    OSCsetMatCapSlider->setEnabled(true);
+    //OSCsetMatCapSlider->setEnabled(true);
     OSCsetTrackSlider->setEnabled(true);
     localSlicesSlider->setEnabled(true);
     localCopiesSlider->setEnabled(true);
@@ -761,8 +773,20 @@ void ofxTLVMMControl::disable(){
     guiAcceptEvents = false;
     //cout << "Called from TimelinePanel - ofxTLVMMControl::disable() - guiAcceptEvents " << guiAcceptEvents << endl;
     
+    
+    
+    
+    /*
+    playNoteOffToggle->setEnabled(false);
+    playAllToggle->setEnabled(false);
+    mirrorToggle->setEnabled(false);
+    mirrorXToggle->setEnabled(false);
+    mirrorYToggle->setEnabled(false);
+    mirrorZToggle->setEnabled(false);
+    */
+    
 	//other disabling
-    OSCsetMatCapSlider->setEnabled(false);
+    //OSCsetMatCapSlider->setEnabled(false);
     OSCsetTrackSlider->setEnabled(false);
     localSlicesSlider->setEnabled(false);
     localCopiesSlider->setEnabled(false);
